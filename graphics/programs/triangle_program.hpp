@@ -1,7 +1,6 @@
 #pragma once
 
-#include <SDL.h>
-#include <OpenGL/gl3.h>
+#include <GL/glew.h>
 #include "../vertex_fragment_program.hpp"
 
 namespace Graphics {

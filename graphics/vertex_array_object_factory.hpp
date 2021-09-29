@@ -1,7 +1,6 @@
 #pragma once
 
-#include <SDL.h>
-#include <OpenGL/gl3.h>
+#include <GL/glew.h>
 #include "program.hpp"
 #include <vector>
 #include <string>

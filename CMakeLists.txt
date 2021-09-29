@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 project(tracer)
 
 include(FindPkgConfig)
-pkg_search_module(SDL2 REQUIRED sdl2)
-find_package(SDL2 REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 
 set(CMAKE_CXX_COMPILER clang++)
 
@@ -14,8 +14,6 @@ set(WARNING_FLAGS "-Wall -Wextra -Wno-multichar -Wno-unused-result -fsanitize=ad
 
 set(CMAKE_EXE_LINKER_FLAGS "-pthread")
 set(CMAKE_CXX_FLAGS   "-O0 -g ${WARNING_FLAGS} -fdeclspec -march=native -DGL_SILENCE_DEPRECATION")
-
-include_directories(tracer ${SDL2_INCLUDE_DIRS})
 
 add_executable(tracer
         main.cpp
@@ -36,4 +34,5 @@ add_executable(tracer
         graphics/error_handling.cpp
         graphics/error_handling.hpp)
 
-target_link_libraries(tracer ${SDL2_LIBRARIES} ${OPENGL_gl_LIBRARY})
+include_directories(tracer ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
+target_link_libraries(tracer GLEW::GLEW OpenGL sfml-graphics)

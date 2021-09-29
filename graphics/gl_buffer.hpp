@@ -4,8 +4,7 @@ namespace Graphics {
 class GLBufferBase;
 }
 
-#include <SDL.h>
-#include <OpenGL/gl3.h>
+#include <GL/glew.h>
 #include <vector>
 #include "error_handling.hpp"
 

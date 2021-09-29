@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SDL.h>
-#include <OpenGL/gl3.h>
+#include <GL/glew.h>
+#include <SFML/Graphics.hpp>
 #include <exception>
 
 class WindowNotCreatedException : std::exception {
@@ -9,11 +9,12 @@ class WindowNotCreatedException : std::exception {
 };
 
 class Window {
-    SDL_Window* handle = nullptr;
-    SDL_GLContext context = 0;
+
     int width;
     int height;
     int scale;
+
+    sf::Window* sf_window;
 
 public:
     Window(int width, int height, int scale = 1);
@@ -24,4 +25,6 @@ public:
 
     void swap();
     void clear();
+
+    sf::Window* get_sf_window() { return sf_window; }
 };

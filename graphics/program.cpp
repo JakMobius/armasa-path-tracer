@@ -2,8 +2,7 @@
 // Created by Артем on 29.09.2021.
 //
 
-#include <SDL.h>
-#include <OpenGL/gl3.h>
+#include <GL/glew.h>
 #include "program.hpp"
 #include "vertex_array_object_factory.hpp"
 

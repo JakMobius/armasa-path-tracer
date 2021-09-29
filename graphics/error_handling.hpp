@@ -2,8 +2,7 @@
 
 #include <string>
 #include <exception>
-#include <OpenGL/gl3.h>
-#include <SDL_opengl.h>
+#include <GL/glew.h>
 
 class GLException : public std::exception {
     GLenum error;

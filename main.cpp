@@ -1,6 +1,5 @@
 
 
-#include <SDL.h>
 #include <iostream>
 #include "graphics/window.hpp"
 #include "graphics/programs/triangle_program.hpp"
@@ -14,11 +13,12 @@ void app() {
                          0, -0.3445,
                          0, 0});
 
-    while(true) {
-        SDL_Event event = {0};
-        SDL_PollEvent(&event);
-        if(event.type == SDL_QUIT) break;
+    sf::Event event {};
 
+    while(true) {
+        while (window.get_sf_window()->pollEvent(event)) {
+            if (event.type == sf::Event::Closed) break;
+        }
         window.clear();
         program.draw();
         window.swap();
