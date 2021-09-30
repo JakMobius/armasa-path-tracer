@@ -16,6 +16,9 @@ class Program {
     GLuint vao = 0;
     GLuint handle = 0;
 
+protected:
+    void bind_vao() { glBindVertexArray(vao); GLException::check(); }
+    void unbind_vao() { glBindVertexArray(0); }
 public:
     Program();
     virtual ~Program();
@@ -37,5 +40,7 @@ public:
 
     GLuint get_handle() const { return handle; }
     GLuint get_vao_handle() const;
+
+    void use() { glUseProgram(get_handle()); }
 };
 }

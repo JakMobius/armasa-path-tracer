@@ -1,24 +1,31 @@
 
-
-#include <iostream>
 #include "graphics/window.hpp"
-#include "graphics/programs/triangle_program.hpp"
-#include "graphics/vertex_array_object_factory.hpp"
+#include "graphics/programs/path_tracer_program.hpp"
+#include "controls/user_controller.hpp"
 
 void app() {
-    Window window(500, 500, 1);
-    Graphics::TriangleProgram program;
+    Window window(3072, 1700, 1);
+    Graphics::PathTracerProgram program;
+    Graphics::Camera camera {};
+    UserController controller(&camera, &window, nullptr);
 
-    program.addTriangle({-1, -1,
-                         0, -0.3445,
-                         0, 0});
+    camera.set_focus_distance(2.0);
+    camera.set_camera_width((float)window.get_width() / (float)window.get_height());
+
+    program.set_camera(&camera);
 
     sf::Event event {};
 
     while(true) {
         while (window.get_sf_window()->pollEvent(event)) {
-            if (event.type == sf::Event::Closed) break;
+            controller.handle_event(event);
         }
+
+        if(!window.is_open()) break;
+
+        //program.get_camera().set_heading(program.get_camera().get_heading() + 0.01);
+
+        controller.tick();
         window.clear();
         program.draw();
         window.swap();

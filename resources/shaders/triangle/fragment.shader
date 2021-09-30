@@ -1,8 +1,8 @@
 #version 330 core
 
-in vec2 vertex_position;
+uniform vec2 u_screen_size;
 out vec4 color;
 
 void main( void ) {
-	color = vec4(1.0, 0.0, 0.0, 1.0);
+	color = vec4(gl_FragCoord.xy / u_screen_size, 0.0, 1.0);
 }

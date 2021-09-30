@@ -24,7 +24,11 @@ public:
     int get_scale() const { return scale; }
 
     void swap();
+
     void clear();
 
     sf::Window* get_sf_window() { return sf_window; }
+
+    void close();
+    bool is_open() { return sf_window->isOpen(); }
 };

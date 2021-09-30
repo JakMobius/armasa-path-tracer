@@ -35,3 +35,7 @@ void Window::clear() {
 void Window::swap() {
     sf_window->display();
 }
+
+void Window::close() {
+    sf_window->close();
+}

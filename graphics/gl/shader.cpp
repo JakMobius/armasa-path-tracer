@@ -3,7 +3,7 @@
 //
 
 #include "shader.hpp"
-#include "error_handling.hpp"
+#include "../error_handling.hpp"
 #include <sstream>
 #include <fstream>
 

@@ -3,9 +3,11 @@
 //
 
 #include "triangle_program.hpp"
-#include "../vertex_array_object_factory.hpp"
+#include "../gl/vertex_array_object_factory.hpp"
 
-Graphics::TriangleProgram::TriangleProgram(): VertexFragmentProgram("triangle/vertex", "triangle/fragment") {
+Graphics::TriangleProgram::TriangleProgram():
+    VertexFragmentProgram("triangle/vertex", "triangle/fragment"),
+    screen_size_uniform(this, "u_screen_size") {
     buffer = new GLBuffer<float>(GLBufferType::array_buffer, GLBufferUsage::static_draw);
     buffer->create_buffer();
 

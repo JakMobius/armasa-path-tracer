@@ -6,25 +6,25 @@ class GLBufferBase;
 
 #include <GL/glew.h>
 #include <vector>
-#include "error_handling.hpp"
+#include "../error_handling.hpp"
 
 namespace Graphics {
 
 enum class GLBufferType {
     array_buffer              = GL_ARRAY_BUFFER,
-//  atomic_counter_buffer     = GL_ATOMIC_COUNTER_BUFFER,
-//  copy_read_buffer          = GL_COPY_READ_BUFFER,
-//  copy_write_buffer         = GL_COPY_WRITE_BUFFER,
-//  dispatch_indirect_buffer  = GL_DISPATCH_INDIRECT_BUFFER,
-//  draw_indirect_buffer      = GL_DRAW_INDIRECT_BUFFER,
+    atomic_counter_buffer     = GL_ATOMIC_COUNTER_BUFFER,
+    copy_read_buffer          = GL_COPY_READ_BUFFER,
+    copy_write_buffer         = GL_COPY_WRITE_BUFFER,
+    dispatch_indirect_buffer  = GL_DISPATCH_INDIRECT_BUFFER,
+    draw_indirect_buffer      = GL_DRAW_INDIRECT_BUFFER,
     element_array_buffer      = GL_ELEMENT_ARRAY_BUFFER,
     pixel_pack_buffer         = GL_PIXEL_PACK_BUFFER,
     pixel_unpack_buffer       = GL_PIXEL_UNPACK_BUFFER,
-//  query_buffer              = GL_QUERY_BUFFER,
-//  shader_storage_buffer     = GL_SHADER_STORAGE_BUFFER,
-//  texture_buffer            = GL_TEXTURE_BUFFER,
-//  transform_feedback_buffer = GL_TRANSFORM_FEEDBACK_BUFFER,
-//  uniform_buffer            = GL_UNIFORM_BUFFER,
+    query_buffer              = GL_QUERY_BUFFER,
+    shader_storage_buffer     = GL_SHADER_STORAGE_BUFFER,
+    texture_buffer            = GL_TEXTURE_BUFFER,
+    transform_feedback_buffer = GL_TRANSFORM_FEEDBACK_BUFFER,
+    uniform_buffer            = GL_UNIFORM_BUFFER,
 };
 
 enum class GLBufferUsage {
@@ -45,15 +45,16 @@ protected:
 public:
     explicit GLBufferBase(GLBufferType type, GLBufferUsage usage = GLBufferUsage::static_draw): type(type), usage(usage) {}
     virtual ~GLBufferBase() = default;
-    void create_buffer() {
+    virtual void create_buffer() {
         glGenBuffers(1, &gl_buffer_handle);
         GLException::check();
     }
 
     virtual void synchronize() = 0;
 
-    void bind() { glBindBuffer((GLenum)type, gl_buffer_handle); }
+    virtual void bind() { glBindBuffer((GLenum)type, gl_buffer_handle); }
 
+    GLuint get_handle() const { return gl_buffer_handle; }
     GLenum get_gl_type() const { return gl_type; }
     int get_gl_size() const  { return gl_size; }
 };

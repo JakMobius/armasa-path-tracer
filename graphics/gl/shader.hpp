@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GL/glew.h>
-#include <OpenGL/gl3ext.h>
 #include <string>
 
 namespace Graphics {

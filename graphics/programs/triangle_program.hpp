@@ -1,7 +1,8 @@
 #pragma once
 
 #include <GL/glew.h>
-#include "../vertex_fragment_program.hpp"
+#include "../gl/vertex_fragment_program.hpp"
+#include "../gl/uniform.hpp"
 
 namespace Graphics {
 
@@ -15,6 +16,7 @@ class TriangleProgram : public VertexFragmentProgram {
     int vertices = 0;
     bool should_resend = false;
     GLBuffer<float>* buffer;
+    Uniform screen_size_uniform;
 public:
     TriangleProgram();
 
@@ -37,7 +39,11 @@ public:
     }
 
     void draw() override {
-        glUseProgram(get_handle());
+        use();
+
+        GLint viewport [4];
+        glGetIntegerv (GL_VIEWPORT, viewport);
+        screen_size_uniform.set2f(viewport[2], viewport[3]);
 
         if(should_resend) buffer->synchronize();
         should_resend = false;
