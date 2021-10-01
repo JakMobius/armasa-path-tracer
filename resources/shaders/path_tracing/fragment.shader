@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 precision highp float;
 
 uniform vec2 u_screen_size;
@@ -14,9 +14,13 @@ uniform samplerBuffer u_float_buffer;
 out vec4 color;
 
 const float infinity = 1.0 / 0.0;
-const float epsilon = 0.005;
+const float epsilon = 0.0001;
 const int max_reflections = 5;
 const int max_tree_depth = 16;
+
+const int HITTABLE_LIST_TYPE = 0;
+const int HITTABLE_SPHERE_TYPE = 1;
+const int HITTABLE_TRIANGLE_TYPE = 2;
 
 struct HitRecord {
 	float dist;
@@ -31,11 +35,59 @@ int hittable_index_stack[max_tree_depth];
 int hittable_child_index_stack[max_tree_depth];
 int stack_size;
 
+bool intersect_triangle(vec3 point_a, vec3 point_b, vec3 point_c);
 bool intersect_sphere(vec3 sphere_position, float sphere_radius);
+
+void hittable_triangle_hit(int index);
 void hittable_sphere_hit(int index);
 void hittable_list_hit(int index);
 void hittable_hit(int index);
+
 void trace_rays();
+
+bool intersect_triangle(vec3 point_a, vec3 point_b, vec3 point_c) {
+	vec3 edge1 = point_b - point_a;
+	vec3 edge2 = point_c - point_a;
+	vec3 h = cross(ray_direction, edge2);
+	float a = dot(edge1, h);
+
+	if (a > -epsilon && a < epsilon) {
+		return false; // This ray is parallel to this triangle.
+	}
+
+	float f = 1.0 / a;
+	vec3 s = ray_source - point_a;
+	float u = f * dot(s, h);
+
+	if (u < 0.0 || u > 1.0) return false;
+
+	vec3 q = cross(s, edge1);
+	float v = f * dot(ray_direction, q);
+
+	if (v < 0.0 || u + v > 1.0) return false;
+
+	// At this stage we can compute t to find out where the intersection point is on the line.
+
+	float t = f * dot(edge2, q);
+
+	if (t > epsilon && t < hit_record.dist) // ray intersection
+	{
+		hit_record.dist = t;
+		hit_record.point = ray_source + ray_direction * t;
+		//hit_record->mat = material;
+		hit_record.normal = cross(edge1, edge2);
+		hit_record.normal /= length(hit_record.normal);
+
+//		hit_record->set_normal_orientation(ray_direction);
+//		hit_record->front_hit = true;
+//		hit_record->surf_x = 0;
+//		hit_record->surf_y = 0;
+		return true;
+	} else {
+		// This means that there is a line intersection but not a ray intersection.
+		return false;
+	}
+}
 
 bool intersect_sphere(vec3 sphere_position, float sphere_radius) {
 	vec3 c_o = ray_source - sphere_position;
@@ -63,16 +115,35 @@ bool intersect_sphere(vec3 sphere_position, float sphere_radius) {
 	if(d > hit_record.dist) return false;
 
 	vec3 point = ray_source + d * ray_direction;
-//	hit_record->mat = material;
-//	hit_record->set_normal_orientation(ray.dir);
+	//	hit_record->mat = material;
+	//	hit_record->set_normal_orientation(ray_direction);
 	hit_record.point = point;
 	hit_record.dist = d;
 	hit_record.normal = (point - sphere_position) / sphere_radius;
 
-	//if(sq_c_0_length < sphere_radius * sphere_radius) hit_record.normal = -hit_record.normal;
-
 	//	get_surface_coords(point, hit_record->surf_x, hit_record->surf_y);
 	return true;
+}
+
+void hittable_triangle_hit(int index) {
+	stack_size--;
+	vec3 point_a = vec3(
+		texelFetch(u_float_buffer, index + 1).r,
+		texelFetch(u_float_buffer, index + 2).r,
+		texelFetch(u_float_buffer, index + 3).r
+	);
+	vec3 point_b = vec3(
+		texelFetch(u_float_buffer, index + 4).r,
+		texelFetch(u_float_buffer, index + 5).r,
+		texelFetch(u_float_buffer, index + 6).r
+	);
+	vec3 point_c = vec3(
+		texelFetch(u_float_buffer, index + 7).r,
+		texelFetch(u_float_buffer, index + 8).r,
+		texelFetch(u_float_buffer, index + 9).r
+	);
+
+	intersect_triangle(point_a, point_b, point_c);
 }
 
 void hittable_sphere_hit(int index) {
@@ -113,10 +184,10 @@ void hittable_list_hit(int index) {
 void hittable_hit(int index) {
 	int hittable_type = int(texelFetch(u_index_buffer, index).r);
 
-	if(hittable_type == 0) {
-		hittable_list_hit(index);
-	} else if(hittable_type == 1) {
-		hittable_sphere_hit(index);
+	switch(hittable_type) {
+		case HITTABLE_LIST_TYPE:     hittable_list_hit(index);     break;
+		case HITTABLE_SPHERE_TYPE:   hittable_sphere_hit(index);   break;
+		case HITTABLE_TRIANGLE_TYPE: hittable_triangle_hit(index); break;
 	}
 }
 
@@ -149,7 +220,7 @@ void trace_rays() {
 
 		ray_source += ray_direction * hit_record.dist;
 		ray_direction -= hit_record.normal * dot(ray_direction, hit_record.normal) * 2;
-		ray_direction /= sqrt(ray_direction.x * ray_direction.x + ray_direction.y * ray_direction.y + ray_direction.z * ray_direction.z);
+		ray_direction /= length(ray_direction);
 		ray_source += ray_direction * epsilon;
 	}
 
@@ -163,7 +234,7 @@ void main( void ) {
 
 	ray_source = u_camera_position;
 	ray_direction = u_camera_focus + u_camera_width_vector * position.x + u_camera_height_vector * position.y;
-	ray_direction /= sqrt(ray_direction.x * ray_direction.x + ray_direction.y * ray_direction.y + ray_direction.z * ray_direction.z);
+	ray_direction /= length(ray_direction);
 
 	trace_rays();
 

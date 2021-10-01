@@ -61,7 +61,7 @@ add_executable(tracer
         utils/vec2.cpp
         utils/vec2.hpp
         utils/matrix3.hpp
-        utils/vec4.hpp utils/vec4.cpp graphics/camera.cpp graphics/camera.hpp scene/scene.cpp scene/scene.hpp scene/hittables/hittable_list.cpp scene/hittables/hittable_list.hpp scene/hittables/hittable.cpp scene/hittables/hittable.hpp scene/hittables/hittable_sphere.cpp scene/hittables/hittable_sphere.hpp)
+        utils/vec4.hpp utils/vec4.cpp graphics/camera.cpp graphics/camera.hpp scene/scene.cpp scene/scene.hpp scene/hittables/hittable_list.cpp scene/hittables/hittable_list.hpp scene/hittables/hittable.cpp scene/hittables/hittable.hpp scene/hittables/hittable_sphere.cpp scene/hittables/hittable_sphere.hpp scene/hittables/hittable_triangle.cpp scene/hittables/hittable_triangle.hpp)
 
 include_directories(tracerc ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
 target_link_libraries(tracer GLEW::GLEW OpenGL sfml-graphics)

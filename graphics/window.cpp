@@ -7,8 +7,8 @@
 
 Window::Window(int width, int height, int scale): width(width), height(height), scale(scale) {
     sf::ContextSettings settings;
-    settings.majorVersion = 3;
-    settings.minorVersion = 3;
+    settings.majorVersion = 4;
+    settings.minorVersion = 1;
 
     sf_window = new sf::Window(sf::VideoMode(width, height, 32), "Tracer",
                                      sf::Style::Titlebar | sf::Style::Close, settings);

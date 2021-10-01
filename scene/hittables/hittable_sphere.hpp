@@ -23,4 +23,9 @@ public:
         float_buffer[index + 3] = position[2];
         float_buffer[index + 4] = radius;
     }
+
+    void set_position(const Vec3f& p_position) { position = p_position; }
+    const Vec3f& get_position() const { return position; }
+    void set_radius(float p_radius) { radius = p_radius; }
+    float get_radius() const { return radius; }
 };
