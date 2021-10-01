@@ -10,8 +10,8 @@ PathTracerProgram::PathTracerProgram():
     VertexFragmentProgram("path_tracing/vertex", "path_tracing/fragment"),
     screen_size_uniform(this, "u_screen_size"),
     scene_float_buffer_uniform(this, "u_float_buffer"),
+    scene_index_buffer_uniform(this, "u_index_buffer"),
     camera_controller_uniform(this)
-    //scene_index_buffer_uniform(this, "u_index_buffer")
     {
 
     vertex_buffer = new GLBuffer<float>(GLBufferType::array_buffer, GLBufferUsage::static_draw);
@@ -19,19 +19,11 @@ PathTracerProgram::PathTracerProgram():
     vertex_buffer->create_buffer();
     vertex_buffer->synchronize();
 
-    scene_float_buffer = new GLTextureBuffer<float>(0, GLBufferUsage::dynamic_draw);
-    for(int i = 0; i < 5; i++) {
-        scene_float_buffer->get_storage().push_back(1.0 * (float)i / 5);
-        scene_float_buffer->get_storage().push_back(0.5 * (float)i / 5);
-        scene_float_buffer->get_storage().push_back(0.0 * (float)i / 5);
-    }
+    scene_float_buffer = new GLTextureBuffer<float>(GLTextureBufferType::R32F, 0, GLBufferUsage::dynamic_draw);
     scene_float_buffer->create_buffer();
-    scene_float_buffer->synchronize();
 
-//    scene_index_buffer = new GLTextureBuffer<int>(1, GLBufferUsage::dynamic_draw);
-//    scene_index_buffer->get_storage().assign({0, 0, 0, 0});
-//    scene_index_buffer->create_buffer();
-//    scene_index_buffer->synchronize();
+    scene_index_buffer = new GLTextureBuffer<int>(GLTextureBufferType::R32I,1, GLBufferUsage::dynamic_draw);
+    scene_index_buffer->create_buffer();
 
     set_vao({
         {
@@ -41,4 +33,5 @@ PathTracerProgram::PathTracerProgram():
         }
     });
 }
+
 }
