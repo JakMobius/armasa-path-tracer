@@ -5,20 +5,20 @@ class HittableList;
 
 #include "hittables/hittable.hpp"
 #include "../graphics/gl/gl_texture_buffer.hpp"
+#include "scene_buffer.hpp"
+#include "scene_renderer.hpp"
 
 class Scene {
     HittableList* root_hittable;
-    int data_length = -1;
-
-    void layout_buffer();
+    SceneRenderer renderer;
 
 public:
     Scene();
     ~Scene();
 
-    void invalidate_buffer_layout() { data_length = -1; }
-
-    void render(Graphics::GLTextureBuffer<int>* index_buffer, Graphics::GLTextureBuffer<float>* float_buffer);
+    void invalidate_buffer_layout() { renderer.invalidate_layout(); }
 
     HittableList* get_root_hittable() const { return root_hittable; }
+
+    SceneRenderer* get_renderer() { return &renderer; }
 };

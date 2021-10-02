@@ -43,13 +43,11 @@ enum class GLTextureBufferType {
 template<typename T>
 class GLTextureBuffer : public GLBuffer<T> {
     GLuint texture_handle = -1;
-    GLenum texture_index = GL_TEXTURE0;
     GLTextureBufferType type;
 public:
-    explicit GLTextureBuffer(GLTextureBufferType type, int gl_index, GLBufferUsage usage = GLBufferUsage::static_draw):
+    explicit GLTextureBuffer(GLTextureBufferType type, GLBufferUsage usage = GLBufferUsage::static_draw):
         GLBuffer<T>(GLBufferType::texture_buffer, usage),
         type(type) {
-        texture_index = GL_TEXTURE0 + gl_index;
     };
 
     void create_buffer() override {
@@ -57,7 +55,7 @@ public:
         glGenTextures(1, &texture_handle);
     }
 
-    void bind_texture() {
+    void bind_texture(GLenum texture_index) {
         glActiveTexture(texture_index);
         glBindTexture(GL_TEXTURE_BUFFER, texture_handle);
         glTexBuffer(GL_TEXTURE_BUFFER, (GLenum) type, this->get_handle());

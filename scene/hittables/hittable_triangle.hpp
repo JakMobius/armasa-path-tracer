@@ -2,34 +2,45 @@
 
 #include "../../utils/vec3.hpp"
 #include "hittable.hpp"
+#include "../materials/material.hpp"
 
-const int HittableTriangleType = 2;
+extern const int HittableTriangleType;
 
 class HittableTriangle : public Hittable {
     Vec3f point_a;
     Vec3f point_b;
     Vec3f point_c;
+    Material* material;
 
 public:
 
-    HittableTriangle(const Vec3f& point_a, const Vec3f& point_b, const Vec3f& point_c):
-        Hittable(), point_a(point_a), point_b(point_b), point_c(point_c) {
-        set_gl_buffer_stride(10);
+    HittableTriangle(const Vec3f& point_a, const Vec3f& point_b, const Vec3f& point_c, Material* material):
+        Hittable(), point_a(point_a), point_b(point_b), point_c(point_c), material(material) {
+        set_gl_buffer_stride(9);
     }
 
-    void render(int* index_buffer, float* float_buffer) override {
-        int index = get_gl_buffer_index();
+    void render(SceneRenderer* renderer, int index) override {
+        int material_index = renderer->get_material_index(material);
 
-        index_buffer[index] = HittableTriangleType;
-        float_buffer[index + 1] = point_a[0];
-        float_buffer[index + 2] = point_a[1];
-        float_buffer[index + 3] = point_a[2];
-        float_buffer[index + 4] = point_b[0];
-        float_buffer[index + 5] = point_b[1];
-        float_buffer[index + 6] = point_b[2];
-        float_buffer[index + 7] = point_c[0];
-        float_buffer[index + 8] = point_c[1];
-        float_buffer[index + 9] = point_c[2];
+        auto scene_buffer = renderer->get_scene_buffer();
+        auto& index_buffer = scene_buffer->get_index_buffer()->get_storage();
+        auto& float_buffer = scene_buffer->get_float_buffer()->get_storage();
+
+        index_buffer[index]     = HittableTriangleType;
+        index_buffer[index + 1] = material_index;
+        float_buffer[index + 0] = point_a[0];
+        float_buffer[index + 1] = point_a[1];
+        float_buffer[index + 2] = point_a[2];
+        float_buffer[index + 3] = point_b[0];
+        float_buffer[index + 4] = point_b[1];
+        float_buffer[index + 5] = point_b[2];
+        float_buffer[index + 6] = point_c[0];
+        float_buffer[index + 7] = point_c[1];
+        float_buffer[index + 8] = point_c[2];
+    }
+
+    void register_materials(SceneRenderer* renderer) override {
+        renderer->register_material(material);
     }
 
     void set_point_a(const Vec3f& p_point_a) { point_a = p_point_a; }

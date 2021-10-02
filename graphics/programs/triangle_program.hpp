@@ -38,7 +38,7 @@ public:
         should_resend = true;
     }
 
-    void draw() override {
+    void draw() {
         use();
 
         GLint viewport [4];

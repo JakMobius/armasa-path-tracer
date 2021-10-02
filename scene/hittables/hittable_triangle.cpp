@@ -3,3 +3,5 @@
 //
 
 #include "hittable_triangle.hpp"
+
+const int HittableTriangleType = 2;

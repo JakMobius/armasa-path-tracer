@@ -36,7 +36,6 @@ public:
     }
 
     void link();
-    virtual void draw() = 0;
 
     GLuint get_handle() const { return handle; }
     GLuint get_vao_handle() const;

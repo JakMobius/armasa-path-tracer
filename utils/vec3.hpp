@@ -75,13 +75,13 @@ struct Vec3 {
 
     inline Vec3<T> operator-() const { return {content * -1}; }
 
-    inline Vec3<T> operator+(const Vec3<T> &second) const { return {content + second.content}; }
+    inline Vec3<T> operator+(const Vec3<T> &second) const { return Vec3<T> {content + second.content}; }
 
-    inline Vec3<T> operator-(const Vec3<T> &second) const { return {content - second.content}; }
+    inline Vec3<T> operator-(const Vec3<T> &second) const { return Vec3<T> {content - second.content}; }
 
-    inline Vec3<T> operator*(const Vec3<T> &second) const { return {content * second.content}; }
+    inline Vec3<T> operator*(const Vec3<T> &second) const { return Vec3<T> {content * second.content}; }
 
-    inline Vec3<T> operator/(const Vec3<T> &second) const { return {content / second.content}; }
+    inline Vec3<T> operator/(const Vec3<T> &second) const { return Vec3<T> {content / second.content}; }
 
     inline Vec3<T> operator*(const T k) const { return {content * k}; }
 
