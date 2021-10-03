@@ -1,0 +1,8 @@
+//
+// Created by Артем on 03.10.2021.
+//
+
+#ifndef TRACER_PRESENT_PROGRAM_HPP
+#define TRACER_PRESENT_PROGRAM_HPP
+
+#endif //TRACER_PRESENT_PROGRAM_HPP
