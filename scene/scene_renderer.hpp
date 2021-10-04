@@ -14,6 +14,7 @@ class Scene;
 class SceneRenderer {
     Scene* target;
     SceneBuffer* scene_buffer;
+    Hittable* bvh_root;
 
     std::map<Material*, int> material_map;
     std::map<Hittable*, int> hittable_map;
@@ -24,12 +25,14 @@ class SceneRenderer {
     int hittable_block_length = -1;
     int alignment = 4;
 
-    int align(int size) {
+    int align(int size) const {
         if(size % alignment > 0) {
             size += alignment - (size % alignment);
         }
         return size;
     }
+
+    void build_bvh();
 
 public:
     explicit SceneRenderer(Scene* scene): target(scene), material_map(), hittable_map() {};

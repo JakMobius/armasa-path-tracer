@@ -35,7 +35,13 @@ void SceneRenderer::render(SceneBuffer* buffer) {
     scene_buffer = nullptr;
 }
 
+void SceneRenderer::build_bvh() {
+    bvh_root = target->get_root_hittable()->to_bvh_node();
+}
+
 void SceneRenderer::layout() {
+    build_bvh();
+
     hittable_map.clear();
     material_map.clear();
 
@@ -46,8 +52,8 @@ void SceneRenderer::layout() {
         hittable_render_queue.pop();
     }
 
-    target->get_root_hittable()->register_materials(this);
-    enqueue_hittable_render(target->get_root_hittable());
+    bvh_root->register_materials(this);
+    enqueue_hittable_render(bvh_root);
 
     while(!hittable_render_queue.empty()) {
         Hittable* next = hittable_render_queue.front();
@@ -58,6 +64,8 @@ void SceneRenderer::layout() {
 }
 
 void SceneRenderer::register_material(Material* material) {
-    material_map.insert({ material, material_block_length });
-    material_block_length = align(material_block_length + material->get_gl_buffer_stride());
+    if(material_map.find(material) == material_map.end()) {
+        material_map.insert({material, material_block_length});
+        material_block_length = align(material_block_length + material->get_gl_buffer_stride());
+    }
 }

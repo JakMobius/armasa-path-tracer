@@ -43,6 +43,13 @@ public:
         renderer->register_material(material);
     }
 
+    void update_aabb() override {
+        for(int i = 0; i < 3; i++) {
+            bounding_box.lower.set(i, std::min(point_a[i], std::min(point_b[i], point_c[i])) - Vec3f::epsilon);
+            bounding_box.upper.set(i, std::max(point_a[i], std::max(point_b[i], point_c[i])) + Vec3f::epsilon);
+        }
+    }
+
     void set_point_a(const Vec3f& p_point_a) { point_a = p_point_a; }
     void set_point_b(const Vec3f& p_point_b) { point_b = p_point_b; }
     void set_point_c(const Vec3f& p_point_c) { point_c = p_point_c; }

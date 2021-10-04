@@ -42,5 +42,15 @@ Scene* cornell_box_scene() {
                Matrix4f::translation_matrix(-box_size * 0.2, box_size * 0.3, -box_size * 0.75 * 0.5)
     , m_white);
 
+//    build_cube(scene->get_root_hittable(), Matrix4f::scale_matrix(60, 60, 60), m_light);
+
+//    for(int i = 0; i < 10; i++) {
+//        for(int j = 0; j < 10; j++) {
+//            build_cube(scene->get_root_hittable(),
+//                       Matrix4f::scale_matrix(box_size * 0.2, box_size * 0.2, box_size * 0.2) *
+//                       Matrix4f::translation_matrix(-3, (double) (i - 5) * 3, (double) (j - 5) * 3), m_green);
+//        }
+//    }
+
     return scene;
 }

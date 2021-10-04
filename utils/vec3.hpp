@@ -68,6 +68,7 @@ struct Vec3 {
     void set_x(T x) { content[0] = x; }
     void set_y(T y) { content[1] = y; }
     void set_z(T z) { content[2] = z; }
+    void set(int i, T x) { content[i] = x; }
 
     T operator[](const int i) const { return content[i]; }
 

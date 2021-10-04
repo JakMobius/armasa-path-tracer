@@ -40,4 +40,14 @@ public:
     const Vec3f& get_position() const { return position; }
     void set_radius(float p_radius) { radius = p_radius; }
     float get_radius() const { return radius; }
+
+    void update_aabb() override {
+        Vec3f radius_vector { radius, radius, radius };
+
+        bounding_box.lower = position;
+        bounding_box.upper = position;
+
+        bounding_box.lower -= radius_vector;
+        bounding_box.upper += radius_vector;
+    }
 };

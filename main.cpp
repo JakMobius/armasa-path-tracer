@@ -1,6 +1,5 @@
 
 #include <random>
-#include <zconf.h>
 #include "graphics/window.hpp"
 #include "graphics/programs/path_tracer_program.hpp"
 #include "controls/user_controller.hpp"
@@ -37,8 +36,8 @@ Graphics::GLFramebuffer* create_framebuffer(int width, int height) {
 }
 
 void app() {
-    const int width = 1000;
-    const int height = 1000;
+    const int width = 800;
+    const int height = 800;
 
     Window window(width, height, 1);
     glViewport(0, 0, width, height);
@@ -65,8 +64,8 @@ void app() {
     camera.set_focus_distance(2.0);
     camera.set_camera_width((float)window.get_width() / (float)window.get_height());
 
-    path_tracer_program.set_max_reflections(3);
-    path_tracer_program.set_samples(2);
+    path_tracer_program.set_max_reflections(6);
+    path_tracer_program.set_samples(1);
     path_tracer_program.set_camera(&camera);
 
     accumulator_program.set_input_texture(temp_framebuffer->get_texture());

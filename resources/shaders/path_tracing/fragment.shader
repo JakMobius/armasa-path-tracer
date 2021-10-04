@@ -29,7 +29,7 @@ const float pi_2 = 6.2831853072;
 
 const float infinity = 1.0 / 0.0;
 const float epsilon = 0.0001;
-const int max_tree_depth = 16;
+const int max_stack_size = 16;
 
 const int HITTABLE_LIST_TYPE = 0;
 const int HITTABLE_SPHERE_TYPE = 1;
@@ -49,8 +49,8 @@ struct HitRecord {
 HitRecord hit_record;
 vec3 ray_source;
 vec3 ray_direction;
-int hittable_index_stack[max_tree_depth];
-int hittable_child_index_stack[max_tree_depth];
+int hittable_index_stack[max_stack_size];
+int hittable_child_index_stack[max_stack_size];
 int stack_size;
 
 bool intersect_triangle(vec3 point_a, vec3 point_b, vec3 point_c);
@@ -182,6 +182,7 @@ bool intersect_sphere(vec3 sphere_position, float sphere_radius) {
 
 void hittable_triangle_hit(int index) {
 	stack_size--;
+
 	vec3 point_a = texelFetch(u_float_buffer, index).xyz;
 	vec3 point_b = texelFetch(u_float_buffer, index + 1).xyz;
 	vec3 point_c = texelFetch(u_float_buffer, index + 2).xyz;
@@ -201,10 +202,43 @@ void hittable_sphere_hit(int index) {
 	}
 }
 
-void hittable_list_hit(int index) {
+bool aabb_hit(vec3 aabb_lower, vec3 aabb_upper) {
+	vec3 invDv = 1 / ray_direction;
+	vec3 t0v = (aabb_lower - ray_source) * invDv;
+	vec3 t1v = (aabb_upper - ray_source) * invDv;
+	float t_min = 0;
+	float t_max = hit_record.dist;
 
+	for(int i = 0; i < 3; i++) {
+		float t0 = t0v[i], t1 = t1v[i], t2 = t1;
+
+		if(invDv[i] < 0) {
+			t1 = t0;
+			t0 = t2;
+		}
+
+		t_min = max(t_min, t0);
+		t_max = min(t_max, t1);
+	}
+
+	return t_max > t_min;
+}
+
+void hittable_list_hit(int index) {
 	int stack_index = stack_size - 1;
 	int current_child_index = hittable_child_index_stack[stack_index];
+
+	// If we've entered the hittable list, check its aabb
+	if(current_child_index == 0) {
+		vec3 aabb_lower = texelFetch(u_float_buffer, index).xyz;
+		vec3 aabb_upper = texelFetch(u_float_buffer, index + 1).xyz;
+
+		if(!aabb_hit(aabb_lower, aabb_upper)) {
+			stack_size--;
+			return;
+		}
+	}
+
 	int children_count = texelFetch(u_index_buffer, index).g;
 
 	if(current_child_index == children_count) {
@@ -266,6 +300,7 @@ void hittable_hit(int index) {
 		case HITTABLE_LIST_TYPE:     hittable_list_hit(index);     break;
 		case HITTABLE_SPHERE_TYPE:   hittable_sphere_hit(index);   break;
 		case HITTABLE_TRIANGLE_TYPE: hittable_triangle_hit(index); break;
+		default: stack_size--;
 	}
 }
 
@@ -273,9 +308,9 @@ bool material_reflect(int index) {
 	int material_type = texelFetch(u_index_buffer, index).r;
 
 	switch(material_type) {
-		case MATERIAL_METAL: 	  		material_metal_reflect(index); return false;
-		case MATERIAL_LAMBERTIAN: 		material_lambertian_reflect(index, false); return false;
-		case MATERIAL_LAMBERTIAN_LIGHT: material_lambertian_reflect(index, true); return true;
+		case MATERIAL_METAL: 	  		material_metal_reflect(index); 				return false;
+		case MATERIAL_LAMBERTIAN: 		material_lambertian_reflect(index, false);  return false;
+		case MATERIAL_LAMBERTIAN_LIGHT: material_lambertian_reflect(index, true); 	return true;
 	}
 
 	return false;
@@ -292,7 +327,8 @@ void trace_rays() {
 		stack_size = 1;
 
 		int tree_steps = 0;
-		while(stack_size > 0 && tree_steps < 16) {
+		while(stack_size > 0) {
+			if(stack_size >= max_stack_size) break;
 			hittable_hit(hittable_index_stack[stack_size - 1]);
 		}
 
@@ -304,7 +340,7 @@ void trace_rays() {
 
 		if(isinf(hit_record.dist)) {
 			// Didn't hit anything
-			//temp_color *= ray_direction;
+//			temp_color *= ray_direction;
 			temp_color = vec3(0, 0, 0);
 			return;
 		}
