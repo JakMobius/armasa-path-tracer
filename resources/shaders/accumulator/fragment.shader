@@ -1,8 +1,11 @@
-#version 330 core
+#version 410 core
 
-uniform vec2 u_screen_size;
+uniform sampler2D u_input_texture;
+uniform sampler2D u_old_texture;
+uniform int u_clear;
+in vec2 uv;
 out vec4 color;
 
 void main( void ) {
-	color = vec4(gl_FragCoord.xy / u_screen_size, 0.0, 1.0);
+	color = texture(u_input_texture, uv) + texture(u_old_texture, uv) * float(1 - u_clear);
 }

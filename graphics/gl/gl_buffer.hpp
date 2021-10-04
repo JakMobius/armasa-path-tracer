@@ -7,37 +7,16 @@ class GLBufferBase;
 #include <GL/glew.h>
 #include <vector>
 #include "../error_handling.hpp"
+#include "gl_enums.hpp"
 
 namespace Graphics {
-
-enum class GLBufferType {
-    array_buffer              = GL_ARRAY_BUFFER,
-    atomic_counter_buffer     = GL_ATOMIC_COUNTER_BUFFER,
-    copy_read_buffer          = GL_COPY_READ_BUFFER,
-    copy_write_buffer         = GL_COPY_WRITE_BUFFER,
-    dispatch_indirect_buffer  = GL_DISPATCH_INDIRECT_BUFFER,
-    draw_indirect_buffer      = GL_DRAW_INDIRECT_BUFFER,
-    element_array_buffer      = GL_ELEMENT_ARRAY_BUFFER,
-    pixel_pack_buffer         = GL_PIXEL_PACK_BUFFER,
-    pixel_unpack_buffer       = GL_PIXEL_UNPACK_BUFFER,
-    query_buffer              = GL_QUERY_BUFFER,
-    shader_storage_buffer     = GL_SHADER_STORAGE_BUFFER,
-    texture_buffer            = GL_TEXTURE_BUFFER,
-    transform_feedback_buffer = GL_TRANSFORM_FEEDBACK_BUFFER,
-    uniform_buffer            = GL_UNIFORM_BUFFER,
-};
-
-enum class GLBufferUsage {
-    static_draw  = GL_STATIC_DRAW,
-    dynamic_draw = GL_DYNAMIC_DRAW
-};
 
 
 
 class GLBufferBase {
 protected:
     GLuint gl_buffer_handle = 0;
-    unsigned long gl_buffer_capacity = 0;
+    long gl_buffer_capacity = -1;
     GLenum gl_type = GL_INT;
     int gl_size = 4;
     GLBufferType type;

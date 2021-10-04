@@ -48,13 +48,12 @@ public:
         if(should_resend) buffer->synchronize();
         should_resend = false;
 
-        glBindVertexArray(get_vao_handle());
-        GLException::check();
+        bind_vao();
 
         glDrawArrays(GL_TRIANGLES, 0, vertices);
         GLException::check();
 
-        glBindVertexArray(0);
+        unbind_vao();
     }
 };
 }

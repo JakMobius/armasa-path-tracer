@@ -22,13 +22,7 @@ Window::Window(int width, int height, int scale): width(width), height(height), 
 }
 
 void Window::clear() {
-    glViewport(0, 0, get_width() * get_scale(), get_height() * get_scale());
-    GLException::check();
-
     glClear(GL_COLOR_BUFFER_BIT);
-    GLException::check();
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     GLException::check();
 }
 

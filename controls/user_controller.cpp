@@ -74,6 +74,8 @@ void UserController::tick() {
     float camera_move_y = (float)((up_pressed ? 1.f : 0.f) + (down_pressed ? -1.f : 0.f)) * 0.01f;
     float camera_move_x = (float)((right_pressed ? 1.f : 0.f) + (left_pressed ? -1.f : 0.f)) * 0.01f;
 
+    if(walk_x == 0 && walk_y == 0 && walk_z == 0 && camera_move_x == 0 && camera_move_y == 0) return;
+
     position += {walk_x * heading_cos - walk_y * heading_sin, walk_x * heading_sin + walk_y * heading_cos, walk_z};
 
     float new_heading = fmod(heading + (float)camera_move_x, M_PI * 2);

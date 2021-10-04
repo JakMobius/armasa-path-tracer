@@ -3,6 +3,8 @@
 
 namespace Graphics {
 void Camera::recalculate_vectors() {
+    should_update_vectors = false;
+
     Matrix4f matrix = Matrix4f::rotation_y_matrix(pitch) * Matrix4f::rotation_z_matrix(heading);
 
     calculated_focus_vector = Vec3f {focus_distance, 0, 0};

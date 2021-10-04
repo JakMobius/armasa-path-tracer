@@ -11,14 +11,21 @@ PathTracerProgram::PathTracerProgram():
     screen_size_uniform(this, "u_screen_size"),
     scene_float_buffer_uniform(this, "u_float_buffer"),
     scene_index_buffer_uniform(this, "u_index_buffer"),
+    scene_random_buffer_uniform(this, "u_random_buffer"),
+    random_buffer_length_uniform(this, "u_random_buffer_length"),
     entry_index_uniform(this, "u_entry_index"),
-    camera_controller_uniform(this)
+    seed_uniform(this, "u_seed"),
+    camera_controller_uniform(this),
+    random()
     {
 
     vertex_buffer = new GLBuffer<float>(GLBufferType::array_buffer, GLBufferUsage::static_draw);
     vertex_buffer->get_storage().assign({-1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, 1});
     vertex_buffer->create_buffer();
     vertex_buffer->synchronize();
+
+    random_buffer = new GLTextureBuffer<float>(Graphics::GLTextureInternalFormat::rgb32f, Graphics::GLBufferUsage::dynamic_draw);
+    random_buffer->create_buffer();
 
     set_vao({
         {
@@ -27,6 +34,14 @@ PathTracerProgram::PathTracerProgram():
             }
         }
     });
+}
+
+void PathTracerProgram::update_random_buffer() {
+    auto& storage = random_buffer->get_storage();
+    storage.clear();
+    for(int i = 0; i < random_buffer_length * 3; i++) {
+        storage.push_back((float)random() / (float)std::mt19937::max());
+    }
 }
 
 }

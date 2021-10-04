@@ -51,5 +51,7 @@ public:
         if(should_update_vectors) recalculate_vectors();
         return calculated_focus_vector;
     }
+
+    bool is_moved() { return should_update_vectors; }
 };
 }

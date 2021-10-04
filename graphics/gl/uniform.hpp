@@ -77,6 +77,26 @@ public:
         glUniform4i(location, value1, value2, value3, value4);
     };
 
+    void set1ui(unsigned value) {
+        check_program_used();
+        glUniform1ui(location, value);
+    };
+
+    void set2ui(unsigned value1, unsigned value2) {
+        check_program_used();
+        glUniform2ui(location, value1, value2);
+    };
+
+    void set3ui(unsigned value1, unsigned value2, unsigned value3) {
+        check_program_used();
+        glUniform3ui(location, value1, value2, value3);
+    };
+
+    void set4ui(unsigned value1, unsigned value2, unsigned value3, unsigned value4) {
+        check_program_used();
+        glUniform4ui(location, value1, value2, value3, value4);
+    };
+
     void setVec3f(const Vec3f& vec) {
         check_program_used();
         glUniform3f(location, vec[0], vec[1], vec[2]);

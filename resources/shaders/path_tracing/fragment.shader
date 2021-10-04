@@ -10,16 +10,20 @@ uniform vec3 u_camera_focus;
 
 uniform isamplerBuffer u_index_buffer;
 uniform samplerBuffer u_float_buffer;
+uniform samplerBuffer u_random_buffer;
 
 uniform int u_entry_index;
+uniform int u_random_buffer_length;
+uniform uint u_seed;
 
-out vec4 color;
+layout(location = 0) out vec4 color;
 
-const float pi = 3.1415926535897932384626433832795;
+const float pi = 3.1415926536;
+const float pi_2 = 6.2831853072;
 
 const float infinity = 1.0 / 0.0;
 const float epsilon = 0.0001;
-const int max_reflections = 3;
+const int max_reflections = 7;
 const int max_tree_depth = 16;
 
 const int HITTABLE_LIST_TYPE = 0;
@@ -61,7 +65,8 @@ void trace_rays();
 uniform float time;
 out vec4 fragment;
 
-uint rand_index;
+//uniform uint u_rand_index;
+int rand_index;
 
 // A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
 uint hash(uint x) {
@@ -73,42 +78,17 @@ uint hash(uint x) {
 	return x;
 }
 
-// Compound versions of the hashing algorithm.
-uint hash(uvec2 v) {return hash( rand_index++ ^ v.x ^ hash(v.y)                         );}
-uint hash(uvec3 v) {return hash( rand_index++ ^ v.x ^ hash(v.y) ^ hash(v.z)             );}
-uint hash(uvec4 v) {return hash( rand_index++ ^ v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w) );}
-
-// Construct a float with half-open range [0:1] using low 23 bits.
-// All zeroes yields 0.0, all ones yields the next smallest representable value below 1.0.
-float floatConstruct( uint m ) {
-	const uint ieeeMantissa = 0x007FFFFFu; // binary32 mantissa bitmask
-	const uint ieeeOne      = 0x3F800000u; // 1.0 in IEEE binary32
-
-	m &= ieeeMantissa;                     // Keep only mantissa bits (fractional part)
-	m |= ieeeOne;                          // Add fractional part to 1.0
-
-	float  f = uintBitsToFloat( m );       // Range [1:2]
-	return f - 1.0;                        // Range [0:1]
-}
-
-// Pseudo-random value in half-open range [0:1].
-float random(float x) { return floatConstruct(hash(floatBitsToUint(x))); }
-float random(vec2  v) { return floatConstruct(hash(floatBitsToUint(v))); }
-float random(vec3  v) { return floatConstruct(hash(floatBitsToUint(v))); }
-float random(vec4  v) { return floatConstruct(hash(floatBitsToUint(v))); }
-
-vec2 random_unit_vec2() {
-	float a = random(ray_source) * pi;
-	return vec2(cos(a), sin(a));
+vec3 random() {
+	if(rand_index >= u_random_buffer_length) rand_index = 0;
+	return texelFetch(u_random_buffer, rand_index++).xyz;
 }
 
 vec3 random_unit_vec3() {
-	vec2 u = random_unit_vec2();
-	float s = random(ray_source) * 4 - 1;
-	bool f = s > 1;
-	if(f) s -= 2;
+	vec3 r = random();
+	float a = r.x * pi_2;
+	vec2 u = vec2(cos(a), sin(a));
+	float s = r.y * 2 - 1;
 	float c = sqrt(1 - s * s);
-	if(f) c = -c;
 	return vec3(c * u, s);
 }
 
@@ -266,11 +246,7 @@ void material_metal_reflect(int index) {
 	color *= material_color;
 	ray_direction -= hit_record.normal * dot(ray_direction, hit_record.normal) * 2;
 
-	vec3 random_vec = vec3(
-		random(ray_source),
-		random(ray_source),
-		random(ray_source)
-	);
+	vec3 random_vec = random();
 
 	ray_direction += fuzziness * random_vec;
 
@@ -298,7 +274,7 @@ bool material_lambertian_reflect(int index, bool has_light) {
 
 	ray_direction = random_unit_vec3();
 	float projection = dot(ray_direction, hit_record.normal);
-	if(projection < 0) ray_direction -= hit_record.normal * projection * 2;
+	if(projection < 0) ray_direction = -ray_direction;
 	ray_direction /= length(ray_direction);
 
 	return false;
@@ -368,7 +344,16 @@ void trace_rays() {
 }
 
 void main( void ) {
-	vec2 position = gl_FragCoord.xy / u_screen_size * 2 - vec2(1, 1);
+	rand_index = abs(int(hash(hash(uint(gl_FragCoord.x)) ^ uint(gl_FragCoord.y) ^ u_seed))) % u_random_buffer_length;
+
+//	color = vec4(random(), 1.0);
+//
+//	return;
+
+	vec2 pixel_size = vec2(1, 1) / u_screen_size * 2;
+	vec2 shift = vec2(random().xy) * pixel_size;
+
+	vec2 position = gl_FragCoord.xy * pixel_size + shift - vec2(1, 1);
 
 	vec4 r_color;
 
@@ -381,5 +366,10 @@ void main( void ) {
 		trace_rays();
 		r_color += color / samples;
 	}
+
 	color = r_color;
+
+	if(color.r > 1) color.r = 1;
+	if(color.g > 1) color.g = 1;
+	if(color.b > 1) color.b = 1;
 }

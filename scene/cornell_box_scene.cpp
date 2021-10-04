@@ -42,20 +42,5 @@ Scene* cornell_box_scene() {
                Matrix4f::translation_matrix(-box_size * 0.2, box_size * 0.3, -box_size * 0.75 * 0.5)
     , m_white);
 
-//    Hittable *rect_light = new h_RectXY({depth / 2 - l_d / 2, width / 2 - l_w / 2, l_h}, {depth / 2 + l_d / 2, width / 2 + l_w / 2, l_h}, m_rect_light);
-//    Hittable *rect_light_floor = new h_RectXY({depth / 2 - l_d / 2, width / 2 - l_w / 2, -10}, {depth / 2 + l_d / 2, width / 2 + l_w / 2, l_h}, m_rect_light);
-//
-//    Hittable *box_1 = new h_Box({ depth * box_coef,  width * box_coef, 0},
-//                                {-depth * box_coef, -width * box_coef, heigh * 0.75},
-//                                m_mirror);
-//
-//    Hittable *box_2 = new h_Box({ depth * box_coef,  width * box_coef, 0},
-//                                {-depth * box_coef, -width * box_coef, heigh * 0.25},
-//                                m_glass);
-//
-//    Hittable *box_3 = new h_Box({ depth * 3 * box_coef,  width * 2.5 *  box_coef, 0},
-//                                {-depth * 3 *  box_coef, -width *  2.5 * box_coef, heigh * 0.03},
-//                                m_glass2);
-
     return scene;
 }
