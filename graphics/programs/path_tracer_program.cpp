@@ -15,6 +15,8 @@ PathTracerProgram::PathTracerProgram():
     random_buffer_length_uniform(this, "u_random_buffer_length"),
     entry_index_uniform(this, "u_entry_index"),
     seed_uniform(this, "u_seed"),
+    sample_uniform(this, "u_samples"),
+    max_reflections_uniform(this, "u_max_reflections"),
     camera_controller_uniform(this),
     random()
     {

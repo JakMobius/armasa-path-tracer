@@ -11,11 +11,11 @@ class SceneBuffer {
 public:
     SceneBuffer() {
         scene_float_buffer = new Graphics::GLTextureBuffer<float>(
-            Graphics::GLTextureInternalFormat::r32f,
+            Graphics::GLTextureInternalFormat::rgba32f,
             Graphics::GLBufferUsage::dynamic_draw
         );
         scene_index_buffer = new Graphics::GLTextureBuffer<int>(
-            Graphics::GLTextureInternalFormat::r32i,
+            Graphics::GLTextureInternalFormat::rgba32i,
             Graphics::GLBufferUsage::dynamic_draw
         );
     }

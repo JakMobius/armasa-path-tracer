@@ -65,9 +65,15 @@ void app() {
     camera.set_focus_distance(2.0);
     camera.set_camera_width((float)window.get_width() / (float)window.get_height());
 
+    path_tracer_program.set_max_reflections(3);
+    path_tracer_program.set_samples(2);
     path_tracer_program.set_camera(&camera);
+
     accumulator_program.set_input_texture(temp_framebuffer->get_texture());
     accumulator_program.set_framebuffers(final_framebuffer_a, final_framebuffer_b);
+
+    present_program.set_brightness(3.0);
+    present_program.set_gamma(0.7);
 
     sf::Event event {};
 
@@ -76,13 +82,15 @@ void app() {
     unsigned long frame_microseconds = 0;
 
     while(true) {
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
         while (window.get_sf_window()->pollEvent(event)) {
             controller.handle_event(event);
         }
 
         if(!window.is_open()) break;
 
-        //controller.tick();
+        controller.tick();
 
         bool clear = camera.is_moved();
         if(clear) {
@@ -91,8 +99,6 @@ void app() {
         }
 
         frames++;
-
-        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
         window.clear();
         temp_framebuffer->bind();
@@ -108,7 +114,7 @@ void app() {
         frame_microseconds += std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
 
         if(frames % measured_frames == 0) {
-            double rays_per_second = (double) measured_frames / (double)frame_microseconds * 1000000 * (double)(width * height);
+            double rays_per_second = (double) measured_frames * (double) path_tracer_program.get_samples() / (double)frame_microseconds * 1000000 * (double)(width * height);
             std::cout << "completed frame " << frames << ", "
                     << (long long)rays_per_second << " rays per second, "
                     << (long long)frames * (long long)width * (long long)height << " rays in total\n";
@@ -117,14 +123,13 @@ void app() {
         }
     }
 }
-
 int main() {
-    app();
-//    try {
-//        app();
-//    } catch(GLException &ex) {
-//        std::cout << "GLException: " << ex.what() << "\n";
-//    } catch(GLStringException &ex) {
-//        std::cout << "GLStringException: " << ex.what() << "\n";
-//    }
+//    app();
+    try {
+        app();
+    } catch(GLException &ex) {
+        std::cout << "GLException: " << ex.what() << "\n";
+    } catch(GLStringException &ex) {
+        std::cout << "GLStringException: " << ex.what() << "\n";
+    }
 }

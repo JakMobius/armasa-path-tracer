@@ -10,7 +10,8 @@
 void SceneRenderer::enqueue_hittable_render(Hittable* hittable) {
     hittable_render_queue.push(hittable);
     hittable_map.insert({ hittable, material_block_length + hittable_block_length });
-    hittable_block_length += hittable->get_gl_buffer_stride();
+
+    hittable_block_length = align(hittable_block_length + hittable->get_gl_buffer_stride());
 }
 
 void SceneRenderer::render(SceneBuffer* buffer) {
@@ -20,7 +21,7 @@ void SceneRenderer::render(SceneBuffer* buffer) {
 
     scene_buffer = buffer;
 
-    buffer->set_entry_hittable_index(material_block_length);
+    buffer->set_entry_hittable_index(material_block_length / alignment);
 
     for(auto entry : material_map) {
         entry.first->render(this, entry.second);
@@ -58,5 +59,5 @@ void SceneRenderer::layout() {
 
 void SceneRenderer::register_material(Material* material) {
     material_map.insert({ material, material_block_length });
-    material_block_length += material->get_gl_buffer_stride();
+    material_block_length = align(material_block_length + material->get_gl_buffer_stride());
 }

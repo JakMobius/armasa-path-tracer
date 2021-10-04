@@ -18,5 +18,5 @@ void main( void ) {
 	color.g = pow(color.g, u_gamma);
 	color.b = pow(color.b, u_gamma);
 
-	color *= 3;
+	color *= u_brightness;
 }

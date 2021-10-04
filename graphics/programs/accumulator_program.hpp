@@ -68,7 +68,11 @@ public:
     }
 
     GLTexture* get_last_target_texture() {
-        return final_texture;
+        if(is_odd_phase) {
+            return framebuffer_a->get_texture();
+        } else {
+            return framebuffer_b->get_texture();
+        }
     }
 };
 

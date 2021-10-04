@@ -22,6 +22,14 @@ class SceneRenderer {
 
     int material_block_length = -1;
     int hittable_block_length = -1;
+    int alignment = 4;
+
+    int align(int size) {
+        if(size % alignment > 0) {
+            size += alignment - (size % alignment);
+        }
+        return size;
+    }
 
 public:
     explicit SceneRenderer(Scene* scene): target(scene), material_map(), hittable_map() {};
@@ -30,8 +38,8 @@ public:
 
     void enqueue_hittable_render(Hittable* hittable);
 
-    int get_material_index(Material* material) { return material_map.at(material); }
-    int get_hittable_index(Hittable* hittable) { return hittable_map.at(hittable); }
+    int get_material_index(Material* material) { return material_map.at(material) / alignment; }
+    int get_hittable_index(Hittable* hittable) { return hittable_map.at(hittable) / alignment; }
 
     void render(SceneBuffer* buffer);
 

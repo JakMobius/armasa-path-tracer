@@ -1,3 +1,5 @@
+// New
+
 #version 410 core
 precision highp float;
 
@@ -11,19 +13,22 @@ uniform vec3 u_camera_focus;
 uniform isamplerBuffer u_index_buffer;
 uniform samplerBuffer u_float_buffer;
 uniform samplerBuffer u_random_buffer;
+uniform samplerBuffer u_random_unit_buffer;
 
 uniform int u_entry_index;
 uniform int u_random_buffer_length;
+uniform int u_samples;
+uniform int u_max_reflections;
 uniform uint u_seed;
 
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec3 color;
+out vec3 temp_color;
 
 const float pi = 3.1415926536;
 const float pi_2 = 6.2831853072;
 
 const float infinity = 1.0 / 0.0;
 const float epsilon = 0.0001;
-const int max_reflections = 7;
 const int max_tree_depth = 16;
 
 const int HITTABLE_LIST_TYPE = 0;
@@ -126,10 +131,10 @@ bool intersect_triangle(vec3 point_a, vec3 point_b, vec3 point_c) {
 
 		if(dot(hit_record.normal, ray_direction) > 0) hit_record.normal = -hit_record.normal;
 
-//		hit_record->set_normal_orientation(ray_direction);
-//		hit_record->front_hit = true;
-//		hit_record->surf_x = 0;
-//		hit_record->surf_y = 0;
+		//		hit_record->set_normal_orientation(ray_direction);
+		//		hit_record->front_hit = true;
+		//		hit_record->surf_x = 0;
+		//		hit_record->surf_y = 0;
 		return true;
 	} else {
 		// This means that there is a line intersection but not a ray intersection.
@@ -177,39 +182,22 @@ bool intersect_sphere(vec3 sphere_position, float sphere_radius) {
 
 void hittable_triangle_hit(int index) {
 	stack_size--;
-	vec3 point_a = vec3(
-		texelFetch(u_float_buffer, index + 0).r,
-		texelFetch(u_float_buffer, index + 1).r,
-		texelFetch(u_float_buffer, index + 2).r
-	);
-	vec3 point_b = vec3(
-		texelFetch(u_float_buffer, index + 3).r,
-		texelFetch(u_float_buffer, index + 4).r,
-		texelFetch(u_float_buffer, index + 5).r
-	);
-	vec3 point_c = vec3(
-		texelFetch(u_float_buffer, index + 6).r,
-		texelFetch(u_float_buffer, index + 7).r,
-		texelFetch(u_float_buffer, index + 8).r
-	);
+	vec3 point_a = texelFetch(u_float_buffer, index).xyz;
+	vec3 point_b = texelFetch(u_float_buffer, index + 1).xyz;
+	vec3 point_c = texelFetch(u_float_buffer, index + 2).xyz;
 
 	if(intersect_triangle(point_a, point_b, point_c)) {
-		hit_record.material = texelFetch(u_index_buffer, index + 1).r;
+		hit_record.material = texelFetch(u_index_buffer, index).g;
 	}
 }
 
 void hittable_sphere_hit(int index) {
 	stack_size--;
 
-	vec3 sphere_position = vec3(
-		texelFetch(u_float_buffer, index).r,
-		texelFetch(u_float_buffer, index + 1).r,
-		texelFetch(u_float_buffer, index + 2).r
-	);
-	float sphere_radius = texelFetch(u_float_buffer, index + 3).r;
+	vec4 sphere_data = texelFetch(u_float_buffer, index).rgba;
 
-	if(intersect_sphere(sphere_position, sphere_radius)) {
-		hit_record.material = texelFetch(u_index_buffer, index + 1).r;
+	if(intersect_sphere(sphere_data.xyz, sphere_data.w)) {
+		hit_record.material = texelFetch(u_index_buffer, index).g;
 	}
 }
 
@@ -217,7 +205,7 @@ void hittable_list_hit(int index) {
 
 	int stack_index = stack_size - 1;
 	int current_child_index = hittable_child_index_stack[stack_index];
-	int children_count = texelFetch(u_index_buffer, index + 1).r;
+	int children_count = texelFetch(u_index_buffer, index).g;
 
 	if(current_child_index == children_count) {
 		stack_size--;
@@ -226,8 +214,9 @@ void hittable_list_hit(int index) {
 
 	hittable_child_index_stack[stack_index] = current_child_index + 1;
 
-	int first_child_index = index + 2;
-	int children_index = texelFetch(u_index_buffer, first_child_index + current_child_index).r;
+	int first_child_index = (index << 2) + 2;
+	int children_pointer = first_child_index + current_child_index;
+	int children_index = texelFetch(u_index_buffer, children_pointer >> 2)[children_pointer & 3];
 
 	hittable_index_stack[stack_size] = children_index;
 	hittable_child_index_stack[stack_size] = 0;
@@ -235,15 +224,10 @@ void hittable_list_hit(int index) {
 }
 
 void material_metal_reflect(int index) {
-	vec4 material_color = vec4(
-		texelFetch(u_float_buffer, index).r,
-		texelFetch(u_float_buffer, index + 1).r,
-		texelFetch(u_float_buffer, index + 2).r,
-		1.0
-	);
-	float fuzziness = texelFetch(u_float_buffer, index + 3).r;
+	vec4 material_color = texelFetch(u_float_buffer, index);
+	float fuzziness = material_color.a;
 
-	color *= material_color;
+	temp_color *= material_color.rgb;
 	ray_direction -= hit_record.normal * dot(ray_direction, hit_record.normal) * 2;
 
 	vec3 random_vec = random();
@@ -261,14 +245,9 @@ void material_metal_reflect(int index) {
 }
 
 bool material_lambertian_reflect(int index, bool has_light) {
-	vec4 material_color = vec4(
-		texelFetch(u_float_buffer, index).r,
-		texelFetch(u_float_buffer, index + 1).r,
-		texelFetch(u_float_buffer, index + 2).r,
-		1.0
-	);
+	vec3 material_color = texelFetch(u_float_buffer, index).rgb;
 
-	color *= material_color;
+	temp_color *= material_color;
 
 	if(has_light) return true;
 
@@ -303,9 +282,9 @@ bool material_reflect(int index) {
 }
 
 void trace_rays() {
-	color = vec4(1, 1, 1, 1);
+	temp_color = vec3(1, 1, 1);
 	int reflections = 0;
-	while(reflections++ < max_reflections) {
+	while(reflections++ < u_max_reflections) {
 
 		hit_record.dist = infinity;
 		hittable_index_stack[0] = u_entry_index;
@@ -319,14 +298,14 @@ void trace_rays() {
 
 		if(stack_size != 0) {
 			// Error state
-			color = vec4(1.0, 0.0, 0.0, 1.0);
+			temp_color = vec3(1, 0, 0);
 			return;
 		}
 
 		if(isinf(hit_record.dist)) {
 			// Didn't hit anything
-			//color *= vec4(ray_direction, 1);
-			color = vec4(0, 0, 0, 0);
+			//temp_color *= ray_direction;
+			temp_color = vec3(0, 0, 0);
 			return;
 		}
 
@@ -340,36 +319,33 @@ void trace_rays() {
 	}
 
 	// Reflection limit exceeded
-	color = vec4(0, 0, 0, 0);
+	temp_color = vec3(0, 0, 0);
 }
 
 void main( void ) {
 	rand_index = abs(int(hash(hash(uint(gl_FragCoord.x)) ^ uint(gl_FragCoord.y) ^ u_seed))) % u_random_buffer_length;
-
-//	color = vec4(random(), 1.0);
-//
-//	return;
 
 	vec2 pixel_size = vec2(1, 1) / u_screen_size * 2;
 	vec2 shift = vec2(random().xy) * pixel_size;
 
 	vec2 position = gl_FragCoord.xy * pixel_size + shift - vec2(1, 1);
 
-	vec4 r_color;
+	vec3 result_color = vec3(0, 0, 0);
 
-	float samples = 1;
+	for(int i = 0; i < u_samples; i++) {
+		if(i > 0) rand_index = abs(int(hash(rand_index))) % u_random_buffer_length;
 
-	for(int i = 0; i < samples; i++) {
 		ray_source = u_camera_position;
 		ray_direction = u_camera_focus + u_camera_width_vector * position.x + u_camera_height_vector * position.y;
 		ray_direction /= length(ray_direction);
 		trace_rays();
-		r_color += color / samples;
+
+		if(temp_color.r < 0) temp_color.r = 0;
+		if(temp_color.g < 0) temp_color.g = 0;
+		if(temp_color.b < 0) temp_color.b = 0;
+
+		result_color += temp_color;
 	}
 
-	color = r_color;
-
-	if(color.r > 1) color.r = 1;
-	if(color.g > 1) color.g = 1;
-	if(color.b > 1) color.b = 1;
+	color = result_color / float(u_samples);
 }
