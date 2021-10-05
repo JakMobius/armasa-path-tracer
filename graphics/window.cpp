@@ -13,8 +13,8 @@ Window::Window(int width, int height, int scale): width(width), height(height), 
     sf_window = new sf::Window(sf::VideoMode(width, height, 32), "Tracer",
                                      sf::Style::Titlebar | sf::Style::Close, settings);
 
-    //sf_window->setVerticalSyncEnabled(true);
-    //sf_window->setFramerateLimit(60);
+    sf_window->setVerticalSyncEnabled(true);
+    sf_window->setFramerateLimit(60);
 
     sf_window->setActive(true);
 

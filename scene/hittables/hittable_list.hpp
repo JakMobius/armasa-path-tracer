@@ -80,7 +80,7 @@ public:
 
         AABB result = children[from]->get_bounding_box();
         for(int i = from + 1; i < to; i++) {
-            result.extend(children[1]->get_bounding_box());
+            result.extend(children[i]->get_bounding_box());
         }
         return result;
     }

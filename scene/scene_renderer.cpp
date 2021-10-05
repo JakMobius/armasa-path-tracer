@@ -6,6 +6,7 @@
 #include "materials/material.hpp"
 #include "hittables/hittable.hpp"
 #include "hittables/hittable_list.hpp"
+#include "hittables/bvh_node.hpp"
 
 void SceneRenderer::enqueue_hittable_render(Hittable* hittable) {
     hittable_render_queue.push(hittable);
@@ -37,6 +38,7 @@ void SceneRenderer::render(SceneBuffer* buffer) {
 
 void SceneRenderer::build_bvh() {
     bvh_root = target->get_root_hittable()->to_bvh_node();
+    //((BVHNode*)bvh_root)->dump();
 }
 
 void SceneRenderer::layout() {

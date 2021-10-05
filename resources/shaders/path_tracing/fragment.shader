@@ -330,6 +330,7 @@ void trace_rays() {
 		while(stack_size > 0) {
 			if(stack_size >= max_stack_size) break;
 			hittable_hit(hittable_index_stack[stack_size - 1]);
+			tree_steps++;
 		}
 
 		if(stack_size != 0) {
@@ -340,10 +341,13 @@ void trace_rays() {
 
 		if(isinf(hit_record.dist)) {
 			// Didn't hit anything
-//			temp_color *= ray_direction;
+	//		temp_color *= ray_direction;
 			temp_color = vec3(0, 0, 0);
 			return;
 		}
+
+//		temp_color = vec3(0, 0, float(tree_steps) / 5000);
+//		return;
 
 		ray_source += ray_direction * hit_record.dist;
 		if(material_reflect(hit_record.material)) {

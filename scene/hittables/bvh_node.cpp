@@ -24,7 +24,6 @@ double BVHNode::get_effective_split_size(HittableList* list, int from, int to, i
     auto comparator = aabb_comparators[axis];
 
     int count = to - from;
-    if (count <= BVHNode::maximum_nodes) return INFINITY;
 
     std::sort(list->get_children().begin() + from, list->get_children().begin() + to, comparator);
     int split_index = from + count / 2;

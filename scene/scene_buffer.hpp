@@ -32,6 +32,7 @@ public:
 
     void synchronize_if_needed() {
         if(!needs_synchronization) return;
+        needs_synchronization = false;
 
         scene_float_buffer->synchronize();
         scene_index_buffer->synchronize();

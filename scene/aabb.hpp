@@ -17,6 +17,6 @@ struct AABB {
     }
 
     double get_effective_size() {
-        return (upper[0] - lower[0]) + (upper[1] - lower[1]) + (upper[2] - lower[2]);
+        return fabs(upper[0] - lower[0]) + fabs(upper[1] - lower[1]) + fabs(upper[2] - lower[2]);
     }
 };

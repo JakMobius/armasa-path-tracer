@@ -19,4 +19,20 @@ public:
             child->destroy_bvh();
         }
     }
+
+    virtual bool is_bvh_node() override { return true; };
+
+    void dump(int depth = 1) {
+        AABB box = get_bounding_box();
+        std::cout << "Node: (" << box.lower[0] << "," << box.lower[1] << "," << box.lower[2] << "), (" << box.upper[0] << "," << box.upper[1] << "," << box.upper[2] << ")\n";
+        for(int i = 0; i < get_children().size(); i++) {
+            auto child = get_children()[i];
+            for(int j = 0; j < depth; j++) std::cout << "  ";
+            std::cout << " [" << i << "] = ";
+            if(child->is_bvh_node()) {
+                ((BVHNode*) child)->dump(depth + 1);
+            }
+            else std::cout << "<leaf>\n";
+        }
+    }
 };

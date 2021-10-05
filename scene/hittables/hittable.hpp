@@ -24,6 +24,7 @@ public:
     virtual Hittable* to_bvh_node() { return this; }
     virtual void update_aabb() = 0;
     virtual void destroy_bvh() {};
+    virtual bool is_bvh_node() { return false; };
 
     AABB get_bounding_box() {
         if(!bounding_box_valid) {
