@@ -39,6 +39,7 @@ void SceneRenderer::render(SceneBuffer* buffer) {
 void SceneRenderer::build_bvh() {
     bvh_root = target->get_root_hittable()->to_bvh_node();
     //((BVHNode*)bvh_root)->dump();
+    //exit(0);
 }
 
 void SceneRenderer::layout() {

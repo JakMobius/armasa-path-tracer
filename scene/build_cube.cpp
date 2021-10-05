@@ -2,6 +2,7 @@
 #include "build_cube.hpp"
 #include "hittables/hittable_list.hpp"
 #include "hittables/hittable_triangle.hpp"
+#include "../obj/tiny_obj_loader.h"
 
 namespace CubeEdges {
     const int x_pos = 0b000001;
@@ -70,4 +71,34 @@ void build_cube(HittableList* container, const Matrix4f& transform, Material* ma
         container->add_children(new HittableTriangle(vertices[0], vertices[1], vertices[3], materials[5]));
         container->add_children(new HittableTriangle(vertices[0], vertices[2], vertices[3], materials[5]));
     }
+}
+
+bool build_model(HittableList* container, const char* path, const Matrix4f& transform, Material* material) {
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::string err;
+
+    if(!tinyobj::LoadObj(&attrib, &shapes, nullptr, &err, path, nullptr)) {
+        return false;
+    }
+
+    for(auto& shape : shapes) {
+        for(int i = 0; i < shape.mesh.indices.size(); i += 3) {
+            int index_a = shape.mesh.indices[i].vertex_index;
+            int index_b = shape.mesh.indices[i + 1].vertex_index;
+            int index_c = shape.mesh.indices[i + 2].vertex_index;
+
+            Vec3f point_a { attrib.vertices[index_a * 3 + 0], attrib.vertices[index_a * 3 + 1], attrib.vertices[index_a * 3 + 2] };
+            Vec3f point_b { attrib.vertices[index_b * 3 + 0], attrib.vertices[index_b * 3 + 1], attrib.vertices[index_b * 3 + 2] };
+            Vec3f point_c { attrib.vertices[index_c * 3 + 0], attrib.vertices[index_c * 3 + 1], attrib.vertices[index_c * 3 + 2] };
+
+            point_a *= transform;
+            point_b *= transform;
+            point_c *= transform;
+
+            container->add_children(new HittableTriangle(point_a, point_b, point_c, material));
+        }
+    }
+
+    return true;
 }

@@ -44,10 +44,24 @@ public:
     }
 
     void update_aabb() override {
+        bounding_box.lower = point_a;
+        bounding_box.upper = point_a;
+
         for(int i = 0; i < 3; i++) {
-            bounding_box.lower.set(i, std::min(point_a[i], std::min(point_b[i], point_c[i])) - Vec3f::epsilon);
-            bounding_box.upper.set(i, std::max(point_a[i], std::max(point_b[i], point_c[i])) + Vec3f::epsilon);
+            bounding_box.lower.set(i, std::min(point_a[i], std::min(point_b[i], point_c[i])));
+            bounding_box.upper.set(i, std::max(point_a[i], std::max(point_b[i], point_c[i])));
         }
+
+        Vec3f size = bounding_box.upper - bounding_box.lower;
+        Vec3f new_size = size;
+
+        for(int i = 0; i < 3; i++) {
+            if(new_size[i] < FLOAT_EPS) new_size.set(i, FLOAT_EPS);
+        }
+
+        Vec3f offset = (new_size - size) / 2;
+        bounding_box.lower -= offset;
+        bounding_box.upper += offset;
     }
 
     void set_point_a(const Vec3f& p_point_a) { point_a = p_point_a; }

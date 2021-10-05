@@ -28,7 +28,7 @@ Scene* cornell_box_scene() {
         m_white, m_white
     });
 
-    build_rect(scene->get_root_hittable(), m_light, {0, 0, box_size / 2 - Vec3f::epsilon}, {lamp_size, lamp_size, 0}, {lamp_size, -lamp_size, 0});
+    build_rect(scene->get_root_hittable(), m_light, {0, 0, box_size / 2 - FLOAT_EPS}, {lamp_size, lamp_size, 0}, {lamp_size, -lamp_size, 0});
 
 //    build_cube(scene->get_root_hittable(),
 //               Matrix4f::scale_matrix(box_size * 0.2, box_size * 0.2, box_size * 0.75) *

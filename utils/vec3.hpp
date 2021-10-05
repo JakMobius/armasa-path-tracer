@@ -13,9 +13,11 @@
 #include <iostream>
 #include "matrix4.hpp"
 
+extern const float FLOAT_EPS;
+extern const float DOUBLE_EPS;
+
 template<typename T>
 struct Vec3 {
-    static const T epsilon;
     typedef T content3 __attribute__((ext_vector_type(4)));
 
     content3 content;
@@ -36,18 +38,18 @@ struct Vec3 {
 
     inline Vec3<T> normal() const {
         T l = len();
-        if(l < epsilon) return {0, 0, 0};
+        if(l < FLOAT_EPS) return {0, 0, 0};
         else return {content / l};
     }
 
     inline void normalize() {
         T l = len();
-        if(l < epsilon) content = {0, 0, 0};
+        if(l < FLOAT_EPS) content = {0, 0, 0};
         else content /= l;
     }
 
     [[nodiscard]] inline bool is_zero() const {
-        const auto squared = (content * content) < epsilon;
+        const auto squared = (content * content) < FLOAT_EPS;
         return squared[0] * squared[1] * squared[2];
     }
 
@@ -86,7 +88,7 @@ struct Vec3 {
 
     inline Vec3<T> operator*(const T k) const { return {content * k}; }
 
-    inline Vec3<T> operator/(T k) const { return {content / k}; }
+    inline Vec3<T> operator/(T k) const { return Vec3<T> {content / k}; }
 
     inline Vec3<T> &operator+=(const Vec3<T> &second) { content += second.content; return *this; }
 
@@ -113,7 +115,7 @@ struct Vec3 {
 
     inline bool operator==(const Vec3<T> &second) const {
         const auto res = content - second.content;
-        return (res[0]) < epsilon && (res[1]) < epsilon && (res[2]) < epsilon;
+        return fabs(res[0]) < FLOAT_EPS && fabs(res[1]) < FLOAT_EPS && fabs(res[2]) < FLOAT_EPS;
     }
 };
 

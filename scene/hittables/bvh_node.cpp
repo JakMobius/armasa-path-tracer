@@ -60,6 +60,6 @@ void BVHNode::generate_bvh(HittableList* list, int from, int to) {
 
     int split_index = from + count / 2;
 
-    add_children(new BVHNode(list, from, split_index));
-    add_children(new BVHNode(list, split_index, to));
+    if(split_index != from) add_children(new BVHNode(list, from, split_index));
+    if(split_index != to) add_children(new BVHNode(list, split_index, to));
 }

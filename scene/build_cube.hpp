@@ -3,6 +3,7 @@
 #include "build_cube.hpp"
 #include "../utils/vec3.hpp"
 #include "scene.hpp"
+#include <string>
 
 namespace CubeEdges {
     extern const int x_pos;
@@ -15,3 +16,4 @@ namespace CubeEdges {
 
 void build_cube(HittableList* container, const Matrix4f& transform, Material* material, int bitmap = ~0);
 void build_cube(HittableList* container, const Matrix4f& transform, Material* materials[6]);
+bool build_model(HittableList* container, const char* path, const Matrix4f& transform, Material* material);
