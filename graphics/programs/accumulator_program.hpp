@@ -1,17 +1,16 @@
 #pragma once
 
-#include "../gl/vertex_fragment_program.hpp"
 #include "../gl/uniform.hpp"
 #include "../gl/gl_texture.hpp"
 #include "../gl/gl_framebuffer.hpp"
+#include "bounded_program.hpp"
 
 namespace Graphics {
 
-class AccumulatorProgram : public VertexFragmentProgram {
-    GLBuffer<float>* vertex_buffer;
+class TracerAccumulatorProgram : public BoundedProgram {
     Uniform old_texture_uniform;
     Uniform input_texture_uniform;
-    Uniform clear_uniform;
+    Uniform frame_count_uniform;
     GLTexture* input_texture;
     GLTexture* final_texture;
 
@@ -28,20 +27,14 @@ class AccumulatorProgram : public VertexFragmentProgram {
             final_texture = framebuffer_b->get_texture();
             framebuffer_a->bind();
         }
-
-        is_odd_phase = !is_odd_phase;
     }
 
 public:
-    AccumulatorProgram();
-
-    ~AccumulatorProgram() {
-        delete vertex_buffer;
-    }
+    TracerAccumulatorProgram();
 
     void set_input_texture(GLTexture* p_input_texture) { input_texture = p_input_texture; }
 
-    void draw(bool clear) {
+    void draw(int frames) {
         use();
 
         bind_vao();
@@ -54,12 +47,16 @@ public:
         glActiveTexture(GL_TEXTURE1);
         final_texture->bind();
         old_texture_uniform.set1i(1);
-        clear_uniform.set1i(clear ? 1 : 0);
+        frame_count_uniform.set1i(frames);
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
         GLException::check();
 
         unbind_vao();
+    }
+
+    void next_frame() {
+        is_odd_phase = !is_odd_phase;
     }
 
     void set_framebuffers(Graphics::GLFramebuffer* p_framebuffer_a, Graphics::GLFramebuffer* p_framebuffer_b) {
@@ -69,9 +66,9 @@ public:
 
     GLTexture* get_last_target_texture() {
         if(is_odd_phase) {
-            return framebuffer_a->get_texture();
-        } else {
             return framebuffer_b->get_texture();
+        } else {
+            return framebuffer_a->get_texture();
         }
     }
 };

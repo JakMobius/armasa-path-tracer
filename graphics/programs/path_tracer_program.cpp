@@ -6,8 +6,8 @@
 #include "../gl/vertex_array_object_factory.hpp"
 
 namespace Graphics {
-PathTracerProgram::PathTracerProgram():
-    VertexFragmentProgram("path_tracing/vertex", "path_tracing/fragment"),
+TracerProgram::TracerProgram():
+    BoundedProgram("path_tracing/vertex", "path_tracing/fragment"),
     screen_size_uniform(this, "u_screen_size"),
     scene_float_buffer_uniform(this, "u_float_buffer"),
     scene_index_buffer_uniform(this, "u_index_buffer"),
@@ -21,11 +21,6 @@ PathTracerProgram::PathTracerProgram():
     random()
     {
 
-    vertex_buffer = new GLBuffer<float>(GLBufferType::array_buffer, GLBufferUsage::static_draw);
-    vertex_buffer->get_storage().assign({-1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, 1});
-    vertex_buffer->create_buffer();
-    vertex_buffer->synchronize();
-
     random_buffer = new GLTextureBuffer<float>(Graphics::GLTextureInternalFormat::rgb32f, Graphics::GLBufferUsage::dynamic_draw);
     random_buffer->create_buffer();
 
@@ -38,7 +33,7 @@ PathTracerProgram::PathTracerProgram():
     });
 }
 
-void PathTracerProgram::update_random_buffer() {
+void TracerProgram::update_random_buffer() {
     auto& storage = random_buffer->get_storage();
     storage.clear();
     for(int i = 0; i < random_buffer_length * 3; i++) {

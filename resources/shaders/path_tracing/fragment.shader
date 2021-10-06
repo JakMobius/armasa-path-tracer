@@ -1,5 +1,3 @@
-// New
-
 #version 410 core
 precision highp float;
 
@@ -13,7 +11,7 @@ uniform vec3 u_camera_focus;
 uniform isamplerBuffer u_index_buffer;
 uniform samplerBuffer u_float_buffer;
 uniform samplerBuffer u_random_buffer;
-uniform samplerBuffer u_random_unit_buffer;
+//uniform samplerBuffer u_random_unit_buffer;
 
 uniform int u_entry_index;
 uniform int u_random_buffer_length;
@@ -38,18 +36,22 @@ const int HITTABLE_TRIANGLE_TYPE = 2;
 const int MATERIAL_METAL = 0;
 const int MATERIAL_LAMBERTIAN = 1;
 const int MATERIAL_LAMBERTIAN_LIGHT = 2;
+const int MATERIAL_DIELECTRIC = 3;
 
 struct HitRecord {
 	float dist;
+	vec3 surface_normal;
 	vec3 normal;
 	vec3 point;
 	int material;
+	bool front_hit;
 	//int attempts;
 };
 
 HitRecord hit_record;
 vec3 ray_source;
 vec3 ray_direction;
+
 int hittable_index_stack[max_stack_size];
 int hittable_child_index_stack[max_stack_size];
 int stack_size;
@@ -60,8 +62,9 @@ void hittable_sphere_hit(int index);
 void hittable_list_hit(int index);
 void hittable_hit(int index);
 
-bool material_lambertian_reflect(bool has_light);
-bool material_metal_reflect();
+void material_lambertian_reflect(bool has_light);
+void material_dielectric_reflect();
+void material_metal_reflect();
 
 bool material_reflect(int index);
 void trace_rays();
@@ -122,9 +125,12 @@ void hittable_triangle_hit(int index, ivec4 data) {
 		hit_record.dist = t;
 		hit_record.point = ray_source + ray_direction * t;
 		hit_record.normal = normalize(normal_a * (1 - u - v) + normal_b * u + normal_c * v);
+		hit_record.surface_normal = normalize(cross(edge1, edge2));
 		hit_record.material = data.g;
+		hit_record.front_hit = dot(hit_record.normal, ray_direction) < 0;
 
-		if(dot(hit_record.normal, ray_direction) > 0) hit_record.normal = -hit_record.normal;
+		if(!hit_record.front_hit) hit_record.normal = -hit_record.normal;
+		if(dot(hit_record.surface_normal, ray_direction) > 0) hit_record.surface_normal = -hit_record.surface_normal;
 	}
 }
 
@@ -165,8 +171,10 @@ void hittable_sphere_hit(int index, ivec4 data) {
 	hit_record.dist = d;
 	hit_record.normal = (point - sphere_position) / sphere_radius;
 	hit_record.material = data.g;
+	hit_record.front_hit = dot(hit_record.normal, ray_direction) < 0;
 
-	if(dot(hit_record.normal, ray_direction) > 0) hit_record.normal = -hit_record.normal;
+	if(!hit_record.front_hit) hit_record.normal = -hit_record.normal;
+	hit_record.surface_normal = hit_record.normal;
 }
 
 bool aabb_hit(vec3 aabb_lower, vec3 aabb_upper) {
@@ -240,10 +248,10 @@ void material_metal_reflect(int index) {
 	vec3 random_vec = random();
 
 	ray_direction += normalize(fuzziness * random_vec + ray_direction);
-	float projection = dot(ray_direction, hit_record.normal);
+	float projection = dot(ray_direction, hit_record.surface_normal);
 
 	if(projection < 0) {
-		ray_direction -= hit_record.normal * projection * 2;
+		ray_direction -= hit_record.surface_normal * projection * 2;
 	}
 
 	ray_direction = normalize(ray_direction);
@@ -259,6 +267,51 @@ void material_lambertian_reflect(int index) {
 	temp_color *= material_color;
 
 	ray_direction = normalize(hit_record.normal + random_unit_vec3());
+
+	float projection = dot(ray_direction, hit_record.surface_normal);
+
+	if(projection < 0) {
+		ray_direction -= hit_record.surface_normal * projection * 2;
+	}
+}
+
+float dielectric_reflectiveness(float cosine, float reflection_index) {
+	float r0 = (1 - reflection_index) / (1 + reflection_index);
+	r0 *= r0;
+	return r0 + (1 - r0) * pow((1 - cosine), 5);
+}
+
+void material_dielectric_reflect(int index) {
+	vec3 material_color = texelFetch(u_float_buffer, index).xyz;
+	vec3 material_data = texelFetch(u_float_buffer, index + 1).xyz;
+
+	float roughness = material_data.r;
+	float refr_coef = material_data.g;
+	float fuzziness = material_data.b;
+
+	temp_color *= material_color.rgb;
+
+	if(hit_record.front_hit) refr_coef = 1 / refr_coef;
+
+	float cos_theta = min(-dot(ray_direction, hit_record.normal), 1.0);
+
+	vec3 random_vec = random();
+
+	bool cannot_refract = roughness > 0 && random_vec.y < roughness;
+	if(!cannot_refract) cannot_refract = refr_coef * sqrt(1.0 - cos_theta * cos_theta) > 1.0;
+	if(!cannot_refract) cannot_refract = dielectric_reflectiveness(cos_theta, refr_coef) > random_vec.x;
+
+	vec3 scatter_direction;
+
+	if (cannot_refract) scatter_direction = reflect(ray_direction, hit_record.normal);
+	else scatter_direction = refract(ray_direction, hit_record.normal, refr_coef);
+
+	if(fuzziness > 0) {
+		vec3 fuzz_scatter = random_unit_vec3() * fuzziness;
+		scatter_direction += fuzz_scatter;
+	}
+
+	ray_direction = scatter_direction;
 }
 
 void hittable_hit(int index) {
@@ -278,9 +331,10 @@ bool material_reflect(int index) {
 	int material_type = material_data.r;
 
 	switch(material_type) {
-		case MATERIAL_METAL: 	  		material_metal_reflect(index); 	  return false;
+		case MATERIAL_METAL: 	  		material_metal_reflect(index); 	    return false;
 		case MATERIAL_LAMBERTIAN: 		material_lambertian_reflect(index); return false;
-		case MATERIAL_LAMBERTIAN_LIGHT: material_light_reflect(index); 	  return true;
+		case MATERIAL_LAMBERTIAN_LIGHT: material_light_reflect(index); 	    return true;
+		case MATERIAL_DIELECTRIC:       material_dielectric_reflect(index); return false;
 	}
 
 	return false;
@@ -291,8 +345,7 @@ void trace_rays() {
 	int reflections = 0;
 	int tree_steps = 0;
 
-	while(reflections++ < u_max_reflections) {
-
+	do {
 		hit_record.dist = infinity;
 		hittable_index_stack[0] = u_entry_index;
 		hittable_child_index_stack[0] = 0;
@@ -324,11 +377,18 @@ void trace_rays() {
 			 return; // uncomment to generate real images
 		}
 		ray_source += ray_direction * epsilon;
-	}
 
-	// Reflection limit exceeded
-//	temp_color = vec3(0, 0, float(hit_record.attempts) / 60);
-	temp_color = vec3(0, 0, 0);
+	} while(++reflections < u_max_reflections);
+
+	if(u_max_reflections < 0) {
+		// Fast render mode, no reflections
+		float color = 1 / hit_record.dist;
+		temp_color = vec3(color, color, color);
+	} else {
+		// Reflection limit exceeded
+		//	temp_color = vec3(0, 0, float(hit_record.attempts) / 60);
+		temp_color = vec3(0, 0, 0);
+	}
 }
 
 void main( void ) {

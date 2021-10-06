@@ -29,23 +29,34 @@ static Graphics::GLFramebuffer* create_framebuffer(int width, int height) {
 }
 
 SceneDrawer::SceneDrawer(Scene* scene, Graphics::Camera* camera, int width, int height):
-        width(width), height(height), camera(camera), path_tracer_program(), accumulator_program(), renderer(), scene(scene) {
-    temp_framebuffer = create_framebuffer(width, height);
-    final_framebuffer_a = create_framebuffer(width, height);
-    final_framebuffer_b = create_framebuffer(width, height);
+        width(width),
+        height(height),
+        camera(camera),
+        tracer_program(),
+        accumulator_program(),
+        present_program(),
+        renderer(),
+        scene(scene) {
+    single_frame_buffer = create_framebuffer(width, height);
+    accumulator_a = create_framebuffer(width, height);
+    accumulator_b = create_framebuffer(width, height);
+    result_image = create_framebuffer(width, height);
 
-    if(!temp_framebuffer || !final_framebuffer_a || !final_framebuffer_b) {
+    if(!single_frame_buffer || !accumulator_a || !accumulator_b) {
         throw SceneDrawerUnavailableException();
     }
 
-    path_tracer_program.set_max_reflections(5);
-    path_tracer_program.set_samples(1);
-    path_tracer_program.set_camera(camera);
+    tracer_program.set_max_reflections(5);
+    tracer_program.set_samples(1);
+    tracer_program.set_camera(camera);
 
-    accumulator_program.set_input_texture(temp_framebuffer->get_texture());
-    accumulator_program.set_framebuffers(final_framebuffer_a, final_framebuffer_b);
+    accumulator_program.set_input_texture(single_frame_buffer->get_texture());
+    accumulator_program.set_framebuffers(accumulator_a, accumulator_b);
 
     scene_buffer.create_buffers();
 
-    frames = 0;
+    present_program.set_texture(result_image->get_texture());
+
+    frames = 1;
+    seed = time(0);
 }

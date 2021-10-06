@@ -18,6 +18,7 @@ void UserController::handle_event(const sf::Event &event)  {
             case sf::Keyboard::Left: left_pressed = true; break;
             case sf::Keyboard::Down: down_pressed = true; break;
             case sf::Keyboard::Right: right_pressed = true; break;
+            case sf::Keyboard::P: p_pressed = true; break;
             default: break;
         }
     } else if(event.type == sf::Event::KeyReleased) {
@@ -32,6 +33,7 @@ void UserController::handle_event(const sf::Event &event)  {
             case sf::Keyboard::Left: left_pressed = false; break;
             case sf::Keyboard::Down: down_pressed = false; break;
             case sf::Keyboard::Right: right_pressed = false; break;
+            //case sf::Keyboard::P: p_pressed = false; break;
             default: break;
         }
     } else if(event.type == sf::Event::MouseEntered) {

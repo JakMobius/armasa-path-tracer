@@ -3,57 +3,35 @@
 #include <GL/glew.h>
 #include "../gl/vertex_fragment_program.hpp"
 #include "../gl/uniform.hpp"
+#include "../gl/gl_texture.hpp"
 
 namespace Graphics {
 
-struct TriangleShape {
-    float x1, y1;
-    float x2, y2;
-    float x3, y3;
-};
+class TextureProgram : public VertexFragmentProgram {
+    Uniform texture_uniform;
+    GLBuffer<float>* vertex_buffer;
+    GLTexture* texture;
 
-class TriangleProgram : public VertexFragmentProgram {
-    int vertices = 0;
-    bool should_resend = false;
-    GLBuffer<float>* buffer;
-    Uniform screen_size_uniform;
 public:
-    TriangleProgram();
+    TextureProgram();
 
-    ~TriangleProgram() {
-        delete buffer;
-    }
-
-    void addTriangle(const TriangleShape& shape) {
-        std::vector<float>& storage = buffer->get_storage();
-        storage.push_back(shape.x1);
-        storage.push_back(shape.y1);
-        storage.push_back(shape.x2);
-        storage.push_back(shape.y2);
-        storage.push_back(shape.x3);
-        storage.push_back(shape.y3);
-
-        vertices += 3;
-
-        should_resend = true;
-    }
+    ~TextureProgram() { delete vertex_buffer; }
 
     void draw() {
         use();
 
-        GLint viewport [4];
-        glGetIntegerv (GL_VIEWPORT, viewport);
-        screen_size_uniform.set2f(viewport[2], viewport[3]);
-
-        if(should_resend) buffer->synchronize();
-        should_resend = false;
-
         bind_vao();
 
-        glDrawArrays(GL_TRIANGLES, 0, vertices);
+        glActiveTexture(GL_TEXTURE0);
+        texture->bind();
+        texture_uniform.set1i(0);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         GLException::check();
 
         unbind_vao();
     }
+
+    void set_texture(GLTexture* p_input_texture) { texture = p_input_texture; }
 };
 }

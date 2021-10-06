@@ -7,13 +7,13 @@
 #include "../gl/uniform.hpp"
 #include "camera_uniform_controller/camera_uniform_controller.hpp"
 #include "../../scene/scene_buffer.hpp"
+#include "bounded_program.hpp"
 #include <random>
 
 namespace Graphics {
 
 
-class PathTracerProgram: public VertexFragmentProgram {
-    GLBuffer<float>* vertex_buffer;
+class TracerProgram: public BoundedProgram {
     GLTextureBuffer<float>* random_buffer;
     Uniform screen_size_uniform;
     Uniform scene_float_buffer_uniform;
@@ -29,15 +29,11 @@ class PathTracerProgram: public VertexFragmentProgram {
     std::mt19937 random;
 
     int random_buffer_length = 1024;
-    int samples = 2;
+    int samples = 1;
     int max_reflections = 4;
 
 public:
-    PathTracerProgram();
-
-    ~PathTracerProgram() {
-        delete vertex_buffer;
-    }
+    TracerProgram();
 
     void update_random_buffer();
 

@@ -25,12 +25,10 @@ add_executable(tracer
         graphics/gl/gl_buffer.hpp
         graphics/gl/vertex_fragment_program.cpp
         graphics/gl/vertex_fragment_program.hpp
-        graphics/window.cpp
-        graphics/window.hpp
         graphics/gl/vertex_array_object_factory.cpp
         graphics/gl/vertex_array_object_factory.hpp
-        graphics/programs/triangle_program.cpp
-        graphics/programs/triangle_program.hpp
+        graphics/programs/texture_program.cpp
+        graphics/programs/texture_program.hpp
         graphics/programs/path_tracer_program.cpp
         graphics/programs/path_tracer_program.hpp
         graphics/error_handling.cpp
@@ -109,7 +107,7 @@ add_executable(tracer
         scene/hittables/bvh_node.hpp
         scene/aabb.cpp
         scene/aabb.hpp
-        obj/tiny_obj_loader.h scene/scene_drawer.cpp scene/scene_drawer.hpp)
+        obj/tiny_obj_loader.h scene/scene_drawer.cpp scene/scene_drawer.hpp utils/frame_timer.cpp utils/frame_timer.hpp scene/build_model.hpp scene/build_model.cpp graphics/programs/bounded_program.cpp graphics/programs/bounded_program.hpp scene/materials/material_dielectric.cpp scene/materials/material_dielectric.hpp)
 
 include_directories(tracerc ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
 target_link_libraries(tracer GLEW::GLEW OpenGL sfml-graphics)

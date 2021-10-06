@@ -16,4 +16,3 @@ namespace CubeEdges {
 
 void build_cube(HittableList* container, const Matrix4f& transform, Material* material, int bitmap = ~0);
 void build_cube(HittableList* container, const Matrix4f& transform, Material* materials[6]);
-bool build_model(HittableList* container, const char* path, const Matrix4f& transform, Material* material);
