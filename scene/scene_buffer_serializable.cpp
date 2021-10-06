@@ -9,3 +9,5 @@ void SceneBufferSerializable::set_gl_buffer_stride(int stride) {
     gl_buffer_stride = stride;
     if(scene) scene->invalidate_buffer_layout();
 }
+
+void SceneBufferSerializable::render(SceneRenderer*, int) {}

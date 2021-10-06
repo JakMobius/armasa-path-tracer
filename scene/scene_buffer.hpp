@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../graphics/gl/gl_texture_buffer.hpp"
+#include "../utils/vec3.hpp"
 
 class SceneBuffer {
     Graphics::GLTextureBuffer<float>* scene_float_buffer;
@@ -54,4 +55,11 @@ public:
             scene_float_buffer->get_storage().resize(capacity);
         }
     }
+
+    void write_vector(const Vec3f& vector, int index) {
+        auto& float_buffer = scene_float_buffer->get_storage();
+        float_buffer[index + 0] = vector[0];
+        float_buffer[index + 1] = vector[1];
+        float_buffer[index + 2] = vector[2];
+    };
 };

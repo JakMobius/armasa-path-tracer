@@ -58,17 +58,18 @@ void app() {
     Graphics::GLFramebuffer* final_framebuffer_a = create_framebuffer(width, height);
     Graphics::GLFramebuffer* final_framebuffer_b = create_framebuffer(width, height);
 
+    sf::Texture target_texture
+
     if(!temp_framebuffer || !final_framebuffer_a || !final_framebuffer_b) return;
 
     Scene* scene = cornell_box_scene();
+
     SceneBuffer scene_buffer;
     SceneRenderer renderer(scene);
 
-    HittableList* model = new HittableList();
+    auto* model = new HittableList();
     build_model(model, "resources/models/bobs.obj",
                 Matrix4f::rotation_x_matrix(M_PI / 2) *
-//                Matrix4f::rotation_z_matrix(-M_PI) *
-                //Matrix4f::scale_matrix(1.75, 1.75, 1.75) *
                 Matrix4f::translation_matrix(1, 0, -1),
                 new MaterialLambertian({1, 0.874, 0.768}));
 
@@ -80,18 +81,18 @@ void app() {
     camera.set_focus_distance(2);
     camera.set_camera_width((float)window.get_width() / (float)window.get_height());
 
-    path_tracer_program.set_max_reflections(6);
+    path_tracer_program.set_max_reflections(5);
     path_tracer_program.set_samples(1);
     path_tracer_program.set_camera(&camera);
 
     accumulator_program.set_input_texture(temp_framebuffer->get_texture());
     accumulator_program.set_framebuffers(final_framebuffer_a, final_framebuffer_b);
 
-//    present_program.set_brightness(2.0);
-//    present_program.set_gamma(0.4);
-
     present_program.set_brightness(2.0);
     present_program.set_gamma(0.4);
+//
+//    present_program.set_brightness(1.0);
+//    present_program.set_gamma(1.0);
 
     sf::Event event {};
 

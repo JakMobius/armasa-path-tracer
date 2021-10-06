@@ -23,6 +23,10 @@ public:
     ValueType transform_y(ValueType x, ValueType y, ValueType z) const { return x * data[1] + y * data[5] + z * data[9] + data[13]; }
     ValueType transform_z(ValueType x, ValueType y, ValueType z) const { return x * data[2] + y * data[6] + z * data[10] + data[14]; }
 
+    ValueType transform_x(ValueType x, ValueType y, ValueType z, ValueType w) const { return x * data[0] + y * data[4] + z * data[8] + w * data[12]; }
+    ValueType transform_y(ValueType x, ValueType y, ValueType z, ValueType w) const { return x * data[1] + y * data[5] + z * data[9] + w * data[13]; }
+    ValueType transform_z(ValueType x, ValueType y, ValueType z, ValueType w) const { return x * data[2] + y * data[6] + z * data[10] + w * data[14]; }
+
     static Matrix4<ValueType> rotation_x_matrix(ValueType angle);
     static Matrix4<ValueType> rotation_y_matrix(ValueType angle);
     static Matrix4<ValueType> rotation_z_matrix(ValueType angle);

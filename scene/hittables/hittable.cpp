@@ -4,3 +4,5 @@
 
 #include "hittable.hpp"
 
+void Hittable::register_hittables(SceneRenderer*) {}
+void Hittable::register_materials(SceneRenderer*) {}

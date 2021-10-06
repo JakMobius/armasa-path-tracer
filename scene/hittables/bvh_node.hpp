@@ -25,7 +25,7 @@ public:
     void dump(int depth = 1) {
         AABB box = get_bounding_box();
         std::cout << "Node: (" << box.lower[0] << "," << box.lower[1] << "," << box.lower[2] << "), (" << box.upper[0] << "," << box.upper[1] << "," << box.upper[2] << ")\n";
-        for(int i = 0; i < get_children().size(); i++) {
+        for(int i = 0; i < (int)get_children().size(); i++) {
             auto child = get_children()[i];
             for(int j = 0; j < depth; j++) std::cout << "  ";
             std::cout << " [" << i << "] = ";

@@ -15,12 +15,11 @@ protected:
 
 public:
     Hittable(): bounding_box() {};
-    Hittable(const Hittable& copy) {}
     Hittable(Hittable&& move) = delete;
     virtual ~Hittable() {};
 
-    virtual void register_hittables(SceneRenderer* renderer) {};
-    virtual void register_materials(SceneRenderer* renderer) {}
+    virtual void register_hittables(SceneRenderer* renderer);
+    virtual void register_materials(SceneRenderer* renderer);
     virtual Hittable* to_bvh_node() { return this; }
     virtual void update_aabb() = 0;
     virtual void destroy_bvh() {};

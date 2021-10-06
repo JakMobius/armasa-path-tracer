@@ -21,9 +21,7 @@ public:
         auto& float_buffer = scene_buffer->get_float_buffer()->get_storage();
 
         index_buffer[index]     = MaterialMetalType;
-        float_buffer[index]     = color[0];
-        float_buffer[index + 1] = color[1];
-        float_buffer[index + 2] = color[2];
+        scene_buffer->write_vector(color, index);
         float_buffer[index + 3] = roughness;
     };
 

@@ -39,7 +39,7 @@ struct Vec3 {
     inline Vec3<T> normal() const {
         T l = len();
         if(l < FLOAT_EPS) return {0, 0, 0};
-        else return {content / l};
+        else return Vec3<T> {content / l};
     }
 
     inline void normalize() {
@@ -64,7 +64,7 @@ struct Vec3 {
         const content3 left_second = {content[2], content[0], content[1]};
         const content3 right_second = {other.content[1], other.content[2], other.content[0]};
         const auto res = left_first * right_first - right_second * left_second;
-        return {res};
+        return Vec3<T> {res};
     }
 
     void set_x(T x) { content[0] = x; }
@@ -101,6 +101,15 @@ struct Vec3 {
     inline Vec3<T> &operator/=(const Vec3<T> &second) { content /= second.content; return *this; }
 
     inline Vec3<T> &operator/=(const T k) { content /= k; return *this; }
+
+    void transform_unbound(const Matrix4<T> &other) {
+
+        content = {
+                other.transform_x(content[0], content[1], content[2], 0),
+                other.transform_y(content[0], content[1], content[2], 0),
+                other.transform_z(content[0], content[1], content[2], 0)
+        };
+    }
 
     inline Vec3<T> &operator*=(const Matrix4<T> &other) {
 

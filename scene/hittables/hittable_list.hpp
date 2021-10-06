@@ -65,7 +65,7 @@ public:
             bounding_box.upper = {0, 0, 0};
         } else {
             bounding_box = children[0]->get_bounding_box();
-            for(int i = 1; i < children.size(); i++) {
+            for(int i = 1; i < (int)children.size(); i++) {
                 bounding_box.extend(children[i]->get_bounding_box());
             }
         }

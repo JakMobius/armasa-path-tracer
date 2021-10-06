@@ -10,13 +10,20 @@ class HittableTriangle : public Hittable {
     Vec3f point_a;
     Vec3f point_b;
     Vec3f point_c;
+
+    Vec3f normal_a;
+    Vec3f normal_b;
+    Vec3f normal_c;
+
     Material* material;
 
 public:
 
     HittableTriangle(const Vec3f& point_a, const Vec3f& point_b, const Vec3f& point_c, Material* material):
         Hittable(), point_a(point_a), point_b(point_b), point_c(point_c), material(material) {
-        set_gl_buffer_stride(12);
+        set_gl_buffer_stride(24);
+
+        normal_a = normal_b = normal_c = (point_b - point_a).cross(point_c - point_a).normal();
     }
 
     void render(SceneRenderer* renderer, int index) override {
@@ -28,15 +35,18 @@ public:
 
         index_buffer[index]     = HittableTriangleType;
         index_buffer[index + 1] = material_index;
-        float_buffer[index + 0] = point_a[0];
-        float_buffer[index + 1] = point_a[1];
-        float_buffer[index + 2] = point_a[2];
-        float_buffer[index + 4] = point_b[0];
-        float_buffer[index + 5] = point_b[1];
-        float_buffer[index + 6] = point_b[2];
-        float_buffer[index + 8] = point_c[0];
-        float_buffer[index + 9] = point_c[1];
-        float_buffer[index + 10] = point_c[2];
+        scene_buffer->write_vector(point_a, index + 0);
+        scene_buffer->write_vector(point_b - point_a, index + 4);
+        scene_buffer->write_vector(point_c - point_a, index + 8);
+        scene_buffer->write_vector(normal_a, index + 12);
+        scene_buffer->write_vector(normal_b, index + 16);
+        scene_buffer->write_vector(normal_c, index + 20);
+    }
+
+    void set_normals(const Vec3f& p_normal_a, const Vec3f& p_normal_b, const Vec3f& p_normal_c) {
+        normal_a = p_normal_a;
+        normal_b = p_normal_b;
+        normal_c = p_normal_c;
     }
 
     void register_materials(SceneRenderer* renderer) override {

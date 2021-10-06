@@ -17,7 +17,7 @@ public:
     void set_gl_buffer_stride(int stride);
     int get_gl_buffer_stride() { return gl_buffer_stride; }
 
-    virtual void render(SceneRenderer* renderer, int index) {};
+    virtual void render(SceneRenderer* renderer, int index);
 
     Scene* get_scene() { return scene; }
     void set_scene(Scene* p_scene) { scene = p_scene; }

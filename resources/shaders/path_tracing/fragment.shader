@@ -92,36 +92,36 @@ vec3 random_unit_vec3() {
 
 void hittable_triangle_hit(int index, ivec4 data) {
 	stack_size--;
-	//hit_record.attempts++;
 
-	vec3 point_a = texelFetch(u_float_buffer, index).xyz;
-	vec3 point_b = texelFetch(u_float_buffer, index + 1).xyz;
-	vec3 point_c = texelFetch(u_float_buffer, index + 2).xyz;
+	vec3 edge1 = texelFetch(u_float_buffer, index + 1).xyz;
+	vec3 edge2 = texelFetch(u_float_buffer, index + 2).xyz;
 
-	vec3 edge1 = point_b - point_a;
-	vec3 edge2 = point_c - point_a;
 	vec3 h = cross(ray_direction, edge2);
 	float a = dot(edge1, h);
 
-	if (a > -epsilon && a < epsilon) return;
+	if(a > -epsilon && a < epsilon) return;
 
-	float f = 1.0 / a;
-	vec3 s = ray_source - point_a;
-	float u = f * dot(s, h);
+	vec3 point_a = texelFetch(u_float_buffer, index).xyz;
+	vec3 s = (ray_source - point_a) / a;
+	float u = dot(s, h);
 
 	if (u < 0.0 || u > 1.0) return;
 
 	vec3 q = cross(s, edge1);
-	float v = f * dot(ray_direction, q);
+	float v = dot(ray_direction, q);
 
 	if (v < 0.0 || u + v > 1.0) return;
 
-	float t = f * dot(edge2, q);
+	float t = dot(edge2, q);
 
 	if (t > epsilon && t < hit_record.dist) {
+		vec3 normal_a = texelFetch(u_float_buffer, index + 3).xyz;
+		vec3 normal_b = texelFetch(u_float_buffer, index + 4).xyz;
+		vec3 normal_c = texelFetch(u_float_buffer, index + 5).xyz;
+
 		hit_record.dist = t;
 		hit_record.point = ray_source + ray_direction * t;
-		hit_record.normal = normalize(cross(edge1, edge2));
+		hit_record.normal = normalize(normal_a * (1 - u - v) + normal_b * u + normal_c * v);
 		hit_record.material = data.g;
 
 		if(dot(hit_record.normal, ray_direction) > 0) hit_record.normal = -hit_record.normal;
@@ -235,7 +235,7 @@ void material_metal_reflect(int index) {
 	float fuzziness = material_color.a;
 
 	temp_color *= material_color.rgb;
-	ray_direction -= hit_record.normal * dot(ray_direction, hit_record.normal) * 2;
+	ray_direction = reflect(ray_direction, hit_record.normal);
 
 	vec3 random_vec = random();
 
@@ -258,7 +258,7 @@ void material_lambertian_reflect(int index) {
 	vec3 material_color = texelFetch(u_float_buffer, index).rgb;
 	temp_color *= material_color;
 
-	ray_direction = normalize(random_unit_vec3() + hit_record.normal);
+	ray_direction = normalize(hit_record.normal + random_unit_vec3());
 }
 
 void hittable_hit(int index) {
@@ -312,7 +312,7 @@ void trace_rays() {
 
 		if(isinf(hit_record.dist)) {
 			// Didn't hit anything
-	//		temp_color *= ray_direction;
+//			temp_color *= ray_direction;
 			temp_color = vec3(0, 0, 0);
 			return;
 		}
