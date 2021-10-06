@@ -15,8 +15,8 @@ void SceneRenderer::enqueue_hittable_render(Hittable* hittable) {
     hittable_block_length = align(hittable_block_length + hittable->get_gl_buffer_stride());
 }
 
-void SceneRenderer::render(SceneBuffer* buffer) {
-    if(material_block_length < 0 || hittable_block_length < 0) layout();
+void SceneRenderer::render(SceneBuffer* buffer, Scene* scene) {
+    if(material_block_length < 0 || hittable_block_length < 0) layout(scene);
 
     buffer->require_capacity(material_block_length + hittable_block_length);
 
@@ -36,14 +36,8 @@ void SceneRenderer::render(SceneBuffer* buffer) {
     scene_buffer = nullptr;
 }
 
-void SceneRenderer::build_bvh() {
-    bvh_root = target->get_root_hittable()->to_bvh_node();
-    //((BVHNode*)bvh_root)->dump();
-    //exit(0);
-}
-
-void SceneRenderer::layout() {
-    build_bvh();
+void SceneRenderer::layout(Scene* scene) {
+    bvh_root = scene->get_root_hittable()->to_bvh_node();
 
     hittable_map.clear();
     material_map.clear();

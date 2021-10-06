@@ -31,7 +31,6 @@ public:
 
         auto scene_buffer = renderer->get_scene_buffer();
         auto& index_buffer = scene_buffer->get_index_buffer()->get_storage();
-        auto& float_buffer = scene_buffer->get_float_buffer()->get_storage();
 
         index_buffer[index]     = HittableTriangleType;
         index_buffer[index + 1] = material_index;

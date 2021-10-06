@@ -13,7 +13,7 @@ set(SFML_BUILD_GRAPHICS true)
 set(WARNING_FLAGS "-Wall -Wextra -Wno-multichar -Wno-unused-result -Wno-deprecated-declarations")
 
 set(CMAKE_EXE_LINKER_FLAGS "-pthread")
-set(CMAKE_CXX_FLAGS   "-O0 -g ${WARNING_FLAGS} -fdeclspec -fsanitize=address -march=native -DGL_SILENCE_DEPRECATION")
+set(CMAKE_CXX_FLAGS   "-O0 -g ${WARNING_FLAGS} -fdeclspec -march=native -DGL_SILENCE_DEPRECATION")
 
 add_executable(tracer
         main.cpp
@@ -109,7 +109,7 @@ add_executable(tracer
         scene/hittables/bvh_node.hpp
         scene/aabb.cpp
         scene/aabb.hpp
-        obj/tiny_obj_loader.h)
+        obj/tiny_obj_loader.h scene/scene_drawer.cpp scene/scene_drawer.hpp)
 
 include_directories(tracerc ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
 target_link_libraries(tracer GLEW::GLEW OpenGL sfml-graphics)

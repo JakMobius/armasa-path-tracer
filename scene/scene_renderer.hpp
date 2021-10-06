@@ -12,7 +12,6 @@ class Scene;
 #include "scene_buffer.hpp"
 
 class SceneRenderer {
-    Scene* target;
     SceneBuffer* scene_buffer;
     Hittable* bvh_root;
 
@@ -32,10 +31,10 @@ class SceneRenderer {
         return size;
     }
 
-    void build_bvh();
+    void layout(Scene* target);
 
 public:
-    explicit SceneRenderer(Scene* scene): target(scene), material_map(), hittable_map() {};
+    explicit SceneRenderer(Scene* scene): material_map(), hittable_map() {};
 
     void register_material(Material* material);
 
@@ -44,9 +43,7 @@ public:
     int get_material_index(Material* material) { return material_map.at(material) / alignment; }
     int get_hittable_index(Hittable* hittable) { return hittable_map.at(hittable) / alignment; }
 
-    void render(SceneBuffer* buffer);
-
-    void layout();
+    void render(SceneBuffer* buffer, Scene* scene);
 
     SceneBuffer* get_scene_buffer() { return scene_buffer; }
 
