@@ -29,7 +29,7 @@ static Graphics::GLFramebuffer* create_framebuffer(int width, int height) {
 }
 
 SceneDrawer::SceneDrawer(Scene* scene, Graphics::Camera* camera, int width, int height):
-        width(width), height(height), camera(camera), path_tracer_program(), accumulator_program(), renderer(scene), scene(scene) {
+        width(width), height(height), camera(camera), path_tracer_program(), accumulator_program(), renderer(), scene(scene) {
     temp_framebuffer = create_framebuffer(width, height);
     final_framebuffer_a = create_framebuffer(width, height);
     final_framebuffer_b = create_framebuffer(width, height);
@@ -49,7 +49,3 @@ SceneDrawer::SceneDrawer(Scene* scene, Graphics::Camera* camera, int width, int 
 
     frames = 0;
 }
-
-Graphics::GLTexture* SceneDrawer::get_output_texture() {
-    return accumulator_program.get_last_target_texture();
-};

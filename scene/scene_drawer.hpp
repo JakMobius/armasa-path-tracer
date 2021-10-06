@@ -65,5 +65,6 @@ public:
         frames = 0;
     }
 
-    Graphics::GLTexture* get_output_texture();
+    Graphics::GLTexture* get_output_texture() { return accumulator_program.get_last_target_texture(); };
+    Graphics::Camera* get_camera() { return camera; };
 };

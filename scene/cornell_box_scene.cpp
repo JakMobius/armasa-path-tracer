@@ -17,7 +17,7 @@ Scene* cornell_box_scene() {
     Material *m_green = new MaterialLambertian({0, 1, 0});
     Material *m_light = new MaterialLambertianLight({1, 1, 1}, {1, 1, 1});
 
-    Material *m_mirror = new MaterialMetal({1, 1, 0.5}, 0.05);
+//    Material *m_mirror = new MaterialMetal({1, 1, 0.5}, 0.05);
 
     float lamp_size = 1.6;
     float box_size = 10;

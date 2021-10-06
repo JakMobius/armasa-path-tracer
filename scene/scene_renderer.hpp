@@ -34,7 +34,7 @@ class SceneRenderer {
     void layout(Scene* target);
 
 public:
-    explicit SceneRenderer(Scene* scene): material_map(), hittable_map() {};
+    explicit SceneRenderer(): material_map(), hittable_map() {};
 
     void register_material(Material* material);
 
@@ -46,9 +46,4 @@ public:
     void render(SceneBuffer* buffer, Scene* scene);
 
     SceneBuffer* get_scene_buffer() { return scene_buffer; }
-
-    void invalidate_layout() {
-        material_block_length = -1;
-        hittable_block_length = -1;
-    }
 };

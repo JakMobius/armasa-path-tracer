@@ -6,7 +6,7 @@
 #include "hittables/hittable_list.hpp"
 #include "scene_buffer.hpp"
 
-Scene::Scene(): renderer(this) {
+Scene::Scene() {
     root_hittable = new HittableList();
 }
 

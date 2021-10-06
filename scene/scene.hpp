@@ -16,9 +16,5 @@ public:
     Scene();
     ~Scene();
 
-    void invalidate_buffer_layout() { renderer.invalidate_layout(); }
-
     HittableList* get_root_hittable() const { return root_hittable; }
-
-    SceneRenderer* get_renderer() { return &renderer; }
 };

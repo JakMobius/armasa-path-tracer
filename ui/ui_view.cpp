@@ -12,8 +12,7 @@ void UIView::draw(DrawingContext* ctx) {
         ctx->draw_rect({0, 0}, size);
     }
 
-    for(int i = 0; i < children.size(); i++) {
-        auto* child = children[i];
+    for(auto child : children) {
         Matrix3f saved_transform = ctx->transform;
         child->transform_context(ctx);
         child->draw(ctx);
