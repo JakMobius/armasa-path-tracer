@@ -10,6 +10,8 @@ class UserController {
     bool a_pressed = false;
     bool s_pressed = false;
     bool d_pressed = false;
+    bool q_pressed = false;
+    bool e_pressed = false;
     bool shift_pressed = false;
     bool space_pressed = false;
     bool up_pressed = false;

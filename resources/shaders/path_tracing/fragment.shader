@@ -285,7 +285,6 @@ void material_dielectric_reflect(int index) {
 	vec3 material_color = texelFetch(u_float_buffer, index).xyz;
 	vec3 material_data = texelFetch(u_float_buffer, index + 1).xyz;
 
-	float roughness = material_data.r;
 	float refr_coef = material_data.g;
 	float fuzziness = material_data.b;
 
@@ -294,17 +293,17 @@ void material_dielectric_reflect(int index) {
 	if(hit_record.front_hit) refr_coef = 1 / refr_coef;
 
 	float cos_theta = min(-dot(ray_direction, hit_record.normal), 1.0);
+	float sin_theta = refr_coef * sqrt(1.0 - cos_theta * cos_theta);
 
 	vec3 random_vec = random();
 
-	bool cannot_refract = roughness > 0 && random_vec.y < roughness;
-	if(!cannot_refract) cannot_refract = refr_coef * sqrt(1.0 - cos_theta * cos_theta) > 1.0;
+	bool cannot_refract = sin_theta > 1.0;
 	if(!cannot_refract) cannot_refract = dielectric_reflectiveness(cos_theta, refr_coef) > random_vec.x;
 
 	vec3 scatter_direction;
 
 	if (cannot_refract) scatter_direction = reflect(ray_direction, hit_record.normal);
-	else scatter_direction = refract(ray_direction, hit_record.normal, refr_coef);
+	else scatter_direction = refract(normalize(ray_direction), normalize(hit_record.normal), refr_coef);
 
 	if(fuzziness > 0) {
 		vec3 fuzz_scatter = random_unit_vec3() * fuzziness;
@@ -385,9 +384,11 @@ void trace_rays() {
 		float color = 1 / hit_record.dist;
 		temp_color = vec3(color, color, color);
 	} else {
+
 		// Reflection limit exceeded
-		//	temp_color = vec3(0, 0, float(hit_record.attempts) / 60);
 		temp_color = vec3(0, 0, 0);
+//		temp_color = ray_direction;
+//		temp_color = (ray_direction + 1) * 0.5;//vec3(0, 0, 0);
 	}
 }
 
@@ -407,10 +408,6 @@ void main( void ) {
 		ray_source = u_camera_position;
 		ray_direction = normalize(u_camera_focus + u_camera_width_vector * position.x + u_camera_height_vector * position.y);
 		trace_rays();
-
-		if(temp_color.r < 0) temp_color.r = 0;
-		if(temp_color.g < 0) temp_color.g = 0;
-		if(temp_color.b < 0) temp_color.b = 0;
 
 		result_color += temp_color;
 	}

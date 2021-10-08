@@ -7,15 +7,22 @@
 #include "scene/hittables/hittable_list.hpp"
 #include "scene/cornell_box_scene.hpp"
 #include "graphics/programs/present_program.hpp"
-#include "scene/materials/material_lambertian.hpp"
 #include "scene/scene_drawer.hpp"
 #include "utils/frame_timer.hpp"
-#include "scene/build_model.hpp"
 #include "scene/materials/material_dielectric.hpp"
+#include "scene/build_rect.hpp"
+
+Scene* create_scene() {
+    Scene* scene = cornell_box_scene();
+    return scene;
+}
 
 void app() {
-    const int width = 1000;
-    const int height = 1000;
+//    const int width = 3072;
+//    const int height = 1920;
+
+    const int width = 800;
+    const int height = 800;
 
     sf::ContextSettings settings;
     settings.majorVersion = 4;
@@ -33,22 +40,9 @@ void app() {
     Graphics::Camera camera;
     UserController controller(&camera, window, nullptr);
 
-    Scene* scene = cornell_box_scene();
+    Scene* scene = create_scene();
     SceneDrawer drawer(scene, &camera, width, height);
     FrameTimer timer;
-
-//    auto* model = new HittableList();
-//    build_model(model, "resources/models/bobs.obj",
-//                Matrix4f::rotation_x_matrix(M_PI / 2) *
-//                Matrix4f::translation_matrix(1, 0, -1),
-//                new MaterialLambertian({1, 0.874, 0.768}));
-//    scene->get_root_hittable()->add_children(model);
-
-    scene->get_root_hittable()->add_children(
-        new HittableSphere({0, 0, -2}, 2,
-           new MaterialDielectric({1, 0.874, 0.768}, 2, -1, 0)
-       )
-    );
 
     camera.set_position({-15, 0, 0});
     camera.set_focus_distance(2);

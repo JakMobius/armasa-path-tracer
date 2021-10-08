@@ -46,7 +46,6 @@ SceneDrawer::SceneDrawer(Scene* scene, Graphics::Camera* camera, int width, int 
         throw SceneDrawerUnavailableException();
     }
 
-    tracer_program.set_max_reflections(5);
     tracer_program.set_samples(1);
     tracer_program.set_camera(camera);
 

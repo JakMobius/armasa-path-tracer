@@ -12,6 +12,8 @@ void UserController::handle_event(const sf::Event &event)  {
             case sf::Keyboard::A: a_pressed = true; break;
             case sf::Keyboard::S: s_pressed = true; break;
             case sf::Keyboard::D: d_pressed = true; break;
+            case sf::Keyboard::Q: q_pressed = true; break;
+            case sf::Keyboard::E: e_pressed = true; break;
             case sf::Keyboard::LShift: shift_pressed = true; break;
             case sf::Keyboard::Space: space_pressed = true; break;
             case sf::Keyboard::Up: up_pressed = true; break;
@@ -27,6 +29,8 @@ void UserController::handle_event(const sf::Event &event)  {
             case sf::Keyboard::A: a_pressed = false; break;
             case sf::Keyboard::S: s_pressed = false; break;
             case sf::Keyboard::D: d_pressed = false; break;
+            case sf::Keyboard::Q: q_pressed = false; break;
+            case sf::Keyboard::E: e_pressed = false; break;
             case sf::Keyboard::LShift: shift_pressed = false; break;
             case sf::Keyboard::Space: space_pressed = false; break;
             case sf::Keyboard::Up: up_pressed = false; break;
@@ -63,30 +67,30 @@ void UserController::handle_event(const sf::Event &event)  {
 }
 
 void UserController::tick() {
-    float heading = controlled_camera->get_heading();
-    float heading_sin = sinf(heading);
-    float heading_cos = cosf(heading);
 
-    Vec3f position = controlled_camera->get_position();
-
-    float walk_x = (float)((w_pressed ? 1.f : 0.f) + (s_pressed ? -1.f : 0.f)) * 0.1f;
-    float walk_y = (float)((d_pressed ? 1.f : 0.f) + (a_pressed ? -1.f : 0.f)) * 0.1f;
-    float walk_z = (float)((shift_pressed ? -1.f : 0.f) + (space_pressed ? 1.f : 0.f)) * 0.1f;
+    Vec3f movement = {
+        (float) ((w_pressed ? 1.f : 0.f) + (s_pressed ? -1.f : 0.f)) * 0.1f,
+        (float)((d_pressed ? 1.f : 0.f) + (a_pressed ? -1.f : 0.f)) * 0.1f,
+        (float)((shift_pressed ? -1.f : 0.f) + (space_pressed ? 1.f : 0.f)) * 0.1f
+    };
 
     float camera_move_y = (float)((up_pressed ? 1.f : 0.f) + (down_pressed ? -1.f : 0.f)) * 0.01f;
     float camera_move_x = (float)((right_pressed ? 1.f : 0.f) + (left_pressed ? -1.f : 0.f)) * 0.01f;
+    float camera_move_yaw = (float)((q_pressed ? 1.f : 0.f) + (e_pressed ? -1.f : 0.f)) * 0.01f;
 
-    if(walk_x == 0 && walk_y == 0 && walk_z == 0 && camera_move_x == 0 && camera_move_y == 0) return;
+    if(movement.is_zero() && camera_move_x == 0 && camera_move_y == 0 && camera_move_yaw == 0) return;
+    movement.transform_unbound(controlled_camera->matrix);
 
-    position += {walk_x * heading_cos - walk_y * heading_sin, walk_x * heading_sin + walk_y * heading_cos, walk_z};
+    Matrix4f& new_matrix = controlled_camera->matrix;
 
-    float new_heading = fmod(heading + (float)camera_move_x, M_PI * 2);
-    float new_pitch = controlled_camera->get_pitch() + (float)camera_move_y;
-    if(new_pitch < -M_PI / 2) new_pitch = -M_PI / 2;
-    if(new_pitch > M_PI / 2) new_pitch = M_PI / 2;
+    auto position = controlled_camera->get_position();
+    controlled_camera->set_position(position + movement);
 
-    controlled_camera->set_heading(new_heading);
-    controlled_camera->set_pitch(new_pitch);
-    controlled_camera->set_position(position);
+    new_matrix = Matrix4f::rotation_x_matrix(camera_move_yaw) * new_matrix;
+    new_matrix = Matrix4f::rotation_y_matrix(camera_move_y) * new_matrix;
+    new_matrix = Matrix4f::rotation_z_matrix(camera_move_x) * new_matrix;
+
+    controlled_camera->matrix = new_matrix;
+    controlled_camera->set_moved();
 
 }

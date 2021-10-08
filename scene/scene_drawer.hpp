@@ -40,7 +40,7 @@ class SceneDrawer {
     SceneRenderer renderer;
     Scene* scene;
 
-    int static_frame_substeps = 9;
+    int static_frame_substeps = 1;
     int frame_substeps = 8;
     int frame_substep = 0;
     bool is_dynamic = false;
@@ -127,7 +127,7 @@ public:
         }
         if(!p_is_dynamic && is_dynamic){
             reset();
-            tracer_program.set_max_reflections(6);
+            tracer_program.set_max_reflections(4);
             frame_substeps = static_frame_substeps;
         }
 
