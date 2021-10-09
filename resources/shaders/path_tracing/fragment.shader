@@ -281,6 +281,22 @@ float dielectric_reflectiveness(float cosine, float reflection_index) {
 	return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
 
+float fresnel(vec3 I, vec3 N, float etai, float etat) {
+	float cosi = dot(I, N);
+
+	// Compute sini using Snell's law
+	float sint = etai / etat * sqrt(1 - cosi * cosi);
+
+	// Total internal reflection
+	if (sint >= 1) return 1;
+
+	float cost = sqrt(max(0.f, 1 - sint * sint));
+	cosi = abs(cosi);
+	float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+	float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+	return (Rs * Rs + Rp * Rp) / 2;
+}
+
 void material_dielectric_reflect(int index) {
 	vec3 material_color = texelFetch(u_float_buffer, index).xyz;
 	vec3 material_data = texelFetch(u_float_buffer, index + 1).xyz;
@@ -290,19 +306,19 @@ void material_dielectric_reflect(int index) {
 
 	temp_color *= material_color.rgb;
 
-	if(hit_record.front_hit) refr_coef = 1 / refr_coef;
-
-	float cos_theta = min(-dot(ray_direction, hit_record.normal), 1.0);
-	float sin_theta = refr_coef * sqrt(1.0 - cos_theta * cos_theta);
-
 	vec3 random_vec = random();
+	bool should_reflect = true;
 
-	bool cannot_refract = sin_theta > 1.0;
-	if(!cannot_refract) cannot_refract = dielectric_reflectiveness(cos_theta, refr_coef) > random_vec.x;
+	if(hit_record.front_hit) {
+		should_reflect = fresnel(ray_direction, hit_record.normal, 1, refr_coef) >= random_vec.x;
+		refr_coef = 1 / refr_coef;
+	} else {
+		should_reflect = fresnel(ray_direction, -hit_record.normal, refr_coef, 1) >= random_vec.x;
+	}
 
 	vec3 scatter_direction;
 
-	if (cannot_refract) scatter_direction = reflect(ray_direction, hit_record.normal);
+	if (should_reflect) scatter_direction = reflect(ray_direction, hit_record.normal);
 	else scatter_direction = refract(normalize(ray_direction), normalize(hit_record.normal), refr_coef);
 
 	if(fuzziness > 0) {

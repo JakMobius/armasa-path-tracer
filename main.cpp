@@ -11,9 +11,22 @@
 #include "utils/frame_timer.hpp"
 #include "scene/materials/material_dielectric.hpp"
 #include "scene/build_rect.hpp"
+#include "scene/build_model.hpp"
+#include "scene/build_cube.hpp"
 
 Scene* create_scene() {
     Scene* scene = cornell_box_scene();
+
+//    build_rect(scene->get_root_hittable(), new MaterialDielectric({1, 1, 1}, 2, -1, 0), {-5, 0, 0}, {1, 0, 1}, {-1, 0, 1});
+
+    build_cube(scene->get_root_hittable(), {}, new MaterialDielectric({1, 1, 1}, 2, -1, 0));
+//    build_model(scene->get_root_hittable(), "/Users/artem/Documents/Физтех/2_курс/Прога/Макс/models/WhipperNude.obj",
+//                Matrix4f::rotation_x_matrix(M_PI / 2) *
+//                Matrix4f::rotation_z_matrix(-M_PI / 2) *
+//                Matrix4f::scale_matrix(1.75, 1.75, 1.75) *
+//                Matrix4f::translation_matrix(1, 0, -5),
+//                new MaterialDielectric({1, 0.874, 0.768}, 2, -1, 0));
+
     return scene;
 }
 
