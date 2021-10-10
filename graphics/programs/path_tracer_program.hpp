@@ -31,9 +31,11 @@ class TracerProgram: public BoundedProgram {
     int random_buffer_length = 1024;
     int samples = 1;
     int max_reflections = 4;
+    int screen_width;
+    int screen_height;
 
 public:
-    TracerProgram();
+    TracerProgram(int width, int height);
 
     void update_random_buffer();
 
@@ -42,9 +44,7 @@ public:
         if(!camera) return;
         use();
 
-        GLint viewport [4] = {};
-        glGetIntegerv(GL_VIEWPORT, viewport);
-        screen_size_uniform.set2f((float)viewport[2], (float)viewport[3]);
+        screen_size_uniform.set2f((float)screen_width, (float)screen_height);
 
         bind_vao();
 

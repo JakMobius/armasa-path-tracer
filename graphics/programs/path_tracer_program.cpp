@@ -6,7 +6,7 @@
 #include "../gl/vertex_array_object_factory.hpp"
 
 namespace Graphics {
-TracerProgram::TracerProgram():
+TracerProgram::TracerProgram(int width, int height):
     BoundedProgram("path_tracing/vertex", "path_tracing/fragment"),
     screen_size_uniform(this, "u_screen_size"),
     scene_float_buffer_uniform(this, "u_float_buffer"),
@@ -18,7 +18,9 @@ TracerProgram::TracerProgram():
     sample_uniform(this, "u_samples"),
     max_reflections_uniform(this, "u_max_reflections"),
     camera_controller_uniform(this),
-    random()
+    random(),
+    screen_width(width),
+    screen_height(height)
     {
 
     random_buffer = new GLTextureBuffer<float>(Graphics::GLTextureInternalFormat::rgb32f, Graphics::GLBufferUsage::dynamic_draw);

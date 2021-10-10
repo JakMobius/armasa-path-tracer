@@ -32,7 +32,7 @@ SceneDrawer::SceneDrawer(Scene* scene, Graphics::Camera* camera, int width, int 
         width(width),
         height(height),
         camera(camera),
-        tracer_program(),
+        tracer_program(width, height),
         accumulator_program(),
         present_program(),
         renderer(),

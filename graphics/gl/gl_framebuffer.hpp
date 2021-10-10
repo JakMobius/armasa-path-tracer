@@ -24,9 +24,13 @@ public:
         GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
         glDrawBuffers(1, DrawBuffers);
         glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture->get_handle(), 0);
+
+        glViewport(0, 0, texture->get_width(), texture->get_height());
         GLException::check();
     }
-    static void unbind() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+    static void unbind() {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 
     void set_texture(GLTexture* p_texture) {
         texture = p_texture;

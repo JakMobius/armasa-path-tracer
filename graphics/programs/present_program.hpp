@@ -46,18 +46,21 @@ public:
     float get_brightness() { return brightness; }
 
     void take_screenshot(int seed, int frames) {
-        GLint viewport [4] = {};
-        glGetIntegerv(GL_VIEWPORT, viewport);
 
-        sf::Texture texture;
-        int width = (int)viewport[2];
-        int height = (int)viewport[3];
+        int width = 0, height = 0;
+        int miplevel = 0;
 
-        texture.create(width, height);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &width);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &height);
+
+        sf::Texture buffer_texture;
+
+        buffer_texture.create(width, height);
 
         void* buffer = calloc(width * height, 4);
-        glReadPixels(0, 0, width, height, (GLenum)GLTextureFormat::rgba, (GLenum)GLTextureType::type_unsigned_byte, buffer);
-        texture.update((uint8_t*)buffer);
+        texture->bind();
+        glGetTexImage((GLenum)texture->get_target(), 0, (GLenum)GLTextureFormat::rgba, (GLenum)GLTextureType::type_unsigned_byte, buffer);
+        buffer_texture.update((uint8_t*)buffer);
         free(buffer);
 
         std::stringstream screenshot_name;
@@ -65,7 +68,7 @@ public:
 
         std::string name = screenshot_name.str();
 
-        auto image = texture.copyToImage();
+        auto image = buffer_texture.copyToImage();
         image.flipVertically();
         image.saveToFile(name);
 

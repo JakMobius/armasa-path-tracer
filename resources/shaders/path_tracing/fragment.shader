@@ -355,6 +355,13 @@ bool material_reflect(int index) {
 	return false;
 }
 
+vec3 discrete(vec3 vec) {
+	vec.x = floor((vec.x + 1) / 2 * 5) / 5;
+	vec.y = floor((vec.y + 1) / 2 * 5) / 5;
+	vec.z = floor((vec.z + 1) / 2 * 5) / 5;
+	return vec;
+}
+
 void trace_rays() {
 	temp_color = vec3(1, 1, 1);
 	int reflections = 0;
@@ -380,7 +387,8 @@ void trace_rays() {
 
 		if(isinf(hit_record.dist)) {
 			// Didn't hit anything
-//			temp_color *= ray_direction;
+//			temp_color = ray_direction;
+//			temp_color *= discrete(ray_direction);
 			temp_color = vec3(0, 0, 0);
 			return;
 		}

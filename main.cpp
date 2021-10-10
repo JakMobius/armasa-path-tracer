@@ -17,15 +17,7 @@
 Scene* create_scene() {
     Scene* scene = cornell_box_scene();
 
-//    build_rect(scene->get_root_hittable(), new MaterialDielectric({1, 1, 1}, 2, -1, 0), {-5, 0, 0}, {1, 0, 1}, {-1, 0, 1});
-
-    build_cube(scene->get_root_hittable(), {}, new MaterialDielectric({1, 1, 1}, 2, -1, 0));
-//    build_model(scene->get_root_hittable(), "/Users/artem/Documents/Физтех/2_курс/Прога/Макс/models/WhipperNude.obj",
-//                Matrix4f::rotation_x_matrix(M_PI / 2) *
-//                Matrix4f::rotation_z_matrix(-M_PI / 2) *
-//                Matrix4f::scale_matrix(1.75, 1.75, 1.75) *
-//                Matrix4f::translation_matrix(1, 0, -5),
-//                new MaterialDielectric({1, 0.874, 0.768}, 2, -1, 0));
+    build_cube(scene->get_root_hittable(), Matrix4f::scale_matrix(2, 2, 2), new MaterialDielectric({1, 1, 1}, 1.3, -1, 0));
 
     return scene;
 }
@@ -36,6 +28,9 @@ void app() {
 
     const int width = 800;
     const int height = 800;
+
+    const int image_width = 400;
+    const int image_height = 400;
 
     sf::ContextSettings settings;
     settings.majorVersion = 4;
@@ -54,12 +49,12 @@ void app() {
     UserController controller(&camera, window, nullptr);
 
     Scene* scene = create_scene();
-    SceneDrawer drawer(scene, &camera, width, height);
+    SceneDrawer drawer(scene, &camera, image_width, image_height);
     FrameTimer timer;
 
     camera.set_position({-15, 0, 0});
-    camera.set_focus_distance(2);
-    camera.set_camera_width((float)window->getSize().x / (float)window->getSize().y);
+    camera.set_focus_distance(1);
+    camera.set_camera_width((float)image_width / (float)image_height);
 
     drawer.get_post_processing_program()->set_brightness(2.0);
     drawer.get_post_processing_program()->set_gamma(0.4);
@@ -84,6 +79,8 @@ void app() {
 
         timer.begin_frame();
         drawer.draw_chunk();
+
+        glViewport(0, 0, width, height);
         drawer.present();
 
         window->display();

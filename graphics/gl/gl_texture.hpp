@@ -69,7 +69,8 @@ public:
         return buffer;
     }
 
-    GLuint get_handle() { return handle; }
+    GLuint get_handle() const { return handle; }
+    GLTextureTarget get_target() const { return target; }
 
     static int get_texture_format_size(GLTextureFormat format) {
         switch(format) {
@@ -127,6 +128,9 @@ public:
                 return 4;
         }
     }
+
+    int get_width() { return width; }
+    int get_height() { return width; }
 };
 
 }

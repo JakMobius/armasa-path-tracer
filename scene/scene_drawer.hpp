@@ -40,8 +40,8 @@ class SceneDrawer {
     SceneRenderer renderer;
     Scene* scene;
 
-    int static_frame_substeps = 3;
-    int frame_substeps = 3;
+    int static_frame_substeps = 1;
+    int frame_substeps = 1;
     int frame_substep = 0;
     bool is_dynamic = false;
 
