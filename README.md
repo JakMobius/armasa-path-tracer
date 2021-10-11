@@ -1,6 +1,6 @@
 # Armasa Path Tracer
 
-An OpenGL-based path tracer
+An OpenGL-based path tracer inspired by [Zeta Path Tracer](https://github.com/Magorx/zeta_path_tracer)
 
 ## How to use
 
