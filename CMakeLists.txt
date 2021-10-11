@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.16)
 project(tracer)
 
 include(FindPkgConfig)
+find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 
@@ -118,4 +119,4 @@ add_executable(tracer
         examples/example_view.hpp examples/random_spheres/random_spheres_example_view.cpp examples/random_spheres/random_spheres_example_view.hpp)
 
 include_directories(tracerc ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
-target_link_libraries(tracer GLEW::GLEW OpenGL sfml-graphics)
+target_link_libraries(tracer GLEW::GLEW OpenGL::GL sfml-graphics)
