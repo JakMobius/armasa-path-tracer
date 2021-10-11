@@ -130,7 +130,7 @@ public:
     }
 
     int get_width() { return width; }
-    int get_height() { return width; }
+    int get_height() { return height; }
 };
 
 }

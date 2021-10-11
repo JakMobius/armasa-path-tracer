@@ -46,14 +46,6 @@ add_executable(tracer
         utils/vec3.cpp
         controls/user_controller.hpp
         controls/user_controller.cpp
-        ui/ui_view.cpp
-        ui/ui_view.hpp
-        ui/ui_slider.cpp
-        ui/ui_slider.hpp
-        ui/ui_button.cpp
-        ui/ui_button.hpp
-        ui/ui_text.cpp
-        ui/ui_text.hpp
         events/mouse_events.cpp
         events/mouse_events.hpp
         utils/vec2.cpp
@@ -89,8 +81,8 @@ add_executable(tracer
         scene/materials/material_lambertian_light.hpp
         scene/build_cube.cpp
         scene/build_cube.hpp
-        scene/cornell_box_scene.cpp
-        scene/cornell_box_scene.hpp
+        examples/cornell_box/cornell_box_example_view.cpp
+        examples/cornell_box/cornell_box_example_view.hpp
         scene/build_rect.cpp
         scene/build_rect.hpp
         graphics/gl/gl_framebuffer.cpp
@@ -107,7 +99,23 @@ add_executable(tracer
         scene/hittables/bvh_node.hpp
         scene/aabb.cpp
         scene/aabb.hpp
-        obj/tiny_obj_loader.h scene/scene_drawer.cpp scene/scene_drawer.hpp utils/frame_timer.cpp utils/frame_timer.hpp scene/build_model.hpp scene/build_model.cpp graphics/programs/bounded_program.cpp graphics/programs/bounded_program.hpp scene/materials/material_dielectric.cpp scene/materials/material_dielectric.hpp)
+        obj/tiny_obj_loader.h
+        scene/scene_drawer.cpp
+        scene/scene_drawer.hpp
+        utils/frame_timer.cpp
+        utils/frame_timer.hpp
+        scene/build_model.hpp
+        scene/build_model.cpp
+        graphics/programs/bounded_program.cpp
+        graphics/programs/bounded_program.hpp
+        scene/materials/material_dielectric.cpp
+        scene/materials/material_dielectric.hpp
+        examples/cornell_box_sphere/cornell_box_sphere_example_view.cpp
+        examples/cornell_box_sphere/cornell_box_sphere_example_view.hpp
+        examples/tank/tank_example_view.cpp
+        examples/tank/tank_example_view.hpp
+        examples/example_view.cpp
+        examples/example_view.hpp examples/random_spheres/random_spheres_example_view.cpp examples/random_spheres/random_spheres_example_view.hpp)
 
 include_directories(tracerc ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
 target_link_libraries(tracer GLEW::GLEW OpenGL sfml-graphics)

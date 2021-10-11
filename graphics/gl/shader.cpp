@@ -22,11 +22,14 @@ Shader::~Shader() {
 void Shader::compile() {
     std::stringstream shader_source_path;
     shader_source_path << shader_path << name << ".shader";
-    std::ifstream shader_source_stream(shader_source_path.str());
+    std::string shader_path = shader_source_path.str();
+    std::ifstream shader_source_fstream(shader_path);
 
-    std::string shader_source((std::istreambuf_iterator<char>(shader_source_stream)), std::istreambuf_iterator<char>());
+    std::stringstream shader_source_stream;
+    shader_source_stream << shader_source_fstream.rdbuf() << '\0';
+    shader_source_fstream.close();
 
-    shader_source_stream.close();
+    std::string shader_source = shader_source_stream.str().c_str();
 
     const GLint lengths[] = { (GLint)shader_source.size() };
     const char* sources[] = { shader_source.c_str() };

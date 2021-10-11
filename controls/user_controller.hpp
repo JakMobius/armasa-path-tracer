@@ -2,8 +2,7 @@
 
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
-#include "../graphics/programs/camera_uniform_controller/camera_uniform_controller.hpp"
-#include "../ui/ui_view.hpp"
+#include "../graphics/camera.hpp"
 
 class UserController {
     bool w_pressed = false;
@@ -19,15 +18,14 @@ class UserController {
     bool left_pressed = false;
     bool down_pressed = false;
     bool p_pressed = false;
+
     Graphics::Camera* controlled_camera;
     sf::Window* window;
-    UIView* root_view;
 
-    int old_mouse_x = -1;
-    int old_mouse_y = -1;
+    float camera_speed = 0.1f;
 public:
 
-    explicit UserController(Graphics::Camera* camera, sf::Window* window, UIView* root_view): controlled_camera(camera), window(window), root_view(root_view) {};
+    explicit UserController(Graphics::Camera* camera, sf::Window* window): controlled_camera(camera), window(window) {};
 
     void handle_event(const sf::Event &event);
     void tick();
@@ -39,4 +37,5 @@ public:
         return true;
     }
 
+    void set_camera_speed(float p_camera_speed);
 };

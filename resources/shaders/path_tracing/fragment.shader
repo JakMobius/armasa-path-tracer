@@ -7,6 +7,7 @@ uniform vec3 u_camera_position;
 uniform vec3 u_camera_width_vector;
 uniform vec3 u_camera_height_vector;
 uniform vec3 u_camera_focus;
+uniform vec3 u_background;
 
 uniform isamplerBuffer u_index_buffer;
 uniform samplerBuffer u_float_buffer;
@@ -259,7 +260,10 @@ void material_metal_reflect(int index) {
 
 void material_light_reflect(int index) {
 	vec3 material_color = texelFetch(u_float_buffer, index).rgb;
-	temp_color *= material_color;
+	float cos = abs(dot(ray_direction, hit_record.normal));
+	cos *= cos;
+	cos = clamp(cos, 0.35, 1);
+	temp_color *= (vec3(1, 1, 1) * cos + material_color * (1 - cos));
 }
 
 void material_lambertian_reflect(int index) {
@@ -273,12 +277,6 @@ void material_lambertian_reflect(int index) {
 	if(projection < 0) {
 		ray_direction -= hit_record.surface_normal * projection * 2;
 	}
-}
-
-float dielectric_reflectiveness(float cosine, float reflection_index) {
-	float r0 = (1 - reflection_index) / (1 + reflection_index);
-	r0 *= r0;
-	return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
 
 float fresnel(vec3 I, vec3 N, float etai, float etat) {
@@ -389,7 +387,7 @@ void trace_rays() {
 			// Didn't hit anything
 //			temp_color = ray_direction;
 //			temp_color *= discrete(ray_direction);
-			temp_color = vec3(0, 0, 0);
+			temp_color *= u_background;
 			return;
 		}
 

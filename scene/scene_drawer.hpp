@@ -41,7 +41,9 @@ class SceneDrawer {
     Scene* scene;
 
     int static_frame_substeps = 1;
-    int frame_substeps = 1;
+    int dynamic_frame_substeps = 1;
+    int maximum_reflections = 7;
+    int frame_substeps;
     int frame_substep = 0;
     bool is_dynamic = false;
 
@@ -82,7 +84,7 @@ public:
             if(!is_dynamic) frames++;
 
             if(query_screenshot) {
-                post_processing_program.take_screenshot(seed, frames);
+                present_program.take_screenshot(seed, frames);
                 query_screenshot = false;
             }
         }
@@ -123,16 +125,31 @@ public:
         if(p_is_dynamic && !is_dynamic) {
             reset();
             tracer_program.set_max_reflections(-1);
-            frame_substeps = 1;
+            frame_substeps = dynamic_frame_substeps;
         }
         if(!p_is_dynamic && is_dynamic){
             reset();
-            tracer_program.set_max_reflections(6);
+            tracer_program.set_max_reflections(maximum_reflections);
             frame_substeps = static_frame_substeps;
         }
 
         is_dynamic = p_is_dynamic;
     }
+
+    int get_static_frame_substeps() const { return static_frame_substeps; }
+    void set_static_frame_substeps(int p_static_frame_substeps) {
+        static_frame_substeps = p_static_frame_substeps;
+        if(!is_dynamic) frame_substeps = static_frame_substeps;
+    }
+
+    int get_dynamic_frame_substeps() const { return dynamic_frame_substeps; }
+    void set_dynamic_frame_substeps(int p_dynamic_frame_substeps) {
+        dynamic_frame_substeps = p_dynamic_frame_substeps;
+        if(is_dynamic) frame_substeps = dynamic_frame_substeps;
+    }
+
+    int get_max_reflections() const { return maximum_reflections; }
+    void set_max_reflections(int p_max_reflections) { maximum_reflections = p_max_reflections; }
 
     Graphics::GLTexture* get_output_texture() { return accumulator_program.get_last_target_texture(); };
     Graphics::Camera* get_camera() { return camera; };

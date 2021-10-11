@@ -40,38 +40,15 @@ void UserController::handle_event(const sf::Event &event)  {
             //case sf::Keyboard::P: p_pressed = false; break;
             default: break;
         }
-    } else if(event.type == sf::Event::MouseEntered) {
-        MouseInEvent mouseEvent(event.mouseMove.x, event.mouseMove.y);
-        if(root_view) root_view->on_mouse_in(&mouseEvent);
-    } else if(event.type == sf::Event::MouseLeft) {
-        MouseOutEvent mouseEvent(event.mouseMove.x, event.mouseMove.y);
-        if(root_view) root_view->on_mouse_out(&mouseEvent);
-    } else if(event.type == sf::Event::MouseMoved) {
-        if(old_mouse_x == -1) {
-            old_mouse_x = event.mouseMove.x;
-            old_mouse_y = event.mouseMove.y;
-        }
-
-        MouseMoveEvent mouseEvent(event.mouseMove.x, event.mouseMove.y, event.mouseMove.x - old_mouse_x, event.mouseMove.y - old_mouse_y);
-        if(root_view) root_view->on_mouse_move(&mouseEvent);
-
-        old_mouse_x = event.mouseMove.x;
-        old_mouse_y = event.mouseMove.y;
-    } else if(event.type == sf::Event::MouseButtonPressed) {
-        MouseDownEvent mouseEvent(event.mouseButton.x, event.mouseButton.y);
-        if(root_view) root_view->on_mouse_down(&mouseEvent);
-    } else if(event.type == sf::Event::MouseButtonReleased) {
-        MouseUpEvent mouseEvent(event.mouseButton.x, event.mouseButton.y);
-        if(root_view) root_view->on_mouse_up(&mouseEvent);
     }
 }
 
 void UserController::tick() {
 
     Vec3f movement = {
-        (float) ((w_pressed ? 1.f : 0.f) + (s_pressed ? -1.f : 0.f)) * 0.1f,
-        (float)((d_pressed ? 1.f : 0.f) + (a_pressed ? -1.f : 0.f)) * 0.1f,
-        (float)((shift_pressed ? -1.f : 0.f) + (space_pressed ? 1.f : 0.f)) * 0.1f
+        (float) ((w_pressed ? 1.f : 0.f) + (s_pressed ? -1.f : 0.f)) * camera_speed,
+        (float)((d_pressed ? 1.f : 0.f) + (a_pressed ? -1.f : 0.f)) * camera_speed,
+        (float)((shift_pressed ? -1.f : 0.f) + (space_pressed ? 1.f : 0.f)) * camera_speed
     };
 
     float camera_move_y = (float)((up_pressed ? 1.f : 0.f) + (down_pressed ? -1.f : 0.f)) * 0.01f;
@@ -93,4 +70,8 @@ void UserController::tick() {
     controlled_camera->matrix = new_matrix;
     controlled_camera->set_moved();
 
+}
+
+void UserController::set_camera_speed(float p_camera_speed) {
+    camera_speed = p_camera_speed;
 }

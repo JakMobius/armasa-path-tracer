@@ -17,6 +17,7 @@ TracerProgram::TracerProgram(int width, int height):
     seed_uniform(this, "u_seed"),
     sample_uniform(this, "u_samples"),
     max_reflections_uniform(this, "u_max_reflections"),
+    background_uniform(this, "u_background"),
     camera_controller_uniform(this),
     random(),
     screen_width(width),

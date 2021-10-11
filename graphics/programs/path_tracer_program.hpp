@@ -24,6 +24,7 @@ class TracerProgram: public BoundedProgram {
     Uniform seed_uniform;
     Uniform sample_uniform;
     Uniform max_reflections_uniform;
+    Uniform background_uniform;
     CameraUniformController camera_controller_uniform;
     Camera* camera;
     std::mt19937 random;
@@ -33,6 +34,8 @@ class TracerProgram: public BoundedProgram {
     int max_reflections = 4;
     int screen_width;
     int screen_height;
+
+    Vec3f background_color {0, 0, 0};
 
 public:
     TracerProgram(int width, int height);
@@ -65,6 +68,7 @@ public:
         entry_index_uniform.set1i(scene->get_entry_hittable_index());
         sample_uniform.set1i(samples);
         max_reflections_uniform.set1i(max_reflections);
+        background_uniform.setVec3f(background_color);
 
         camera_controller_uniform.update_uniforms(camera);
 
@@ -82,5 +86,8 @@ public:
 
     int get_max_reflections() const { return max_reflections; }
     void set_max_reflections(int p_max_reflections) { max_reflections = p_max_reflections; }
+
+    Vec3f get_background_color() const { return background_color; }
+    void set_background_color(const Vec3f& p_background_color) { background_color = p_background_color; }
 };
 }

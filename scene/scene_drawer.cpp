@@ -36,7 +36,8 @@ SceneDrawer::SceneDrawer(Scene* scene, Graphics::Camera* camera, int width, int 
         accumulator_program(),
         present_program(),
         renderer(),
-        scene(scene) {
+        scene(scene),
+        frame_substeps(static_frame_substeps) {
     single_frame_buffer = create_framebuffer(width, height);
     accumulator_a = create_framebuffer(width, height);
     accumulator_b = create_framebuffer(width, height);

@@ -5,8 +5,7 @@
 #include "../gl/gl_texture.hpp"
 #include "bounded_program.hpp"
 #include <GL/glew.h>
-#include <SFML/Graphics/Texture.hpp>
-#include <sstream>
+
 namespace Graphics {
 
 class TracerPostProcessingProgram : public BoundedProgram {
@@ -44,36 +43,6 @@ public:
     float get_gamma() { return gamma; }
     void set_brightness(float p_brightness) { brightness = p_brightness; }
     float get_brightness() { return brightness; }
-
-    void take_screenshot(int seed, int frames) {
-
-        int width = 0, height = 0;
-        int miplevel = 0;
-
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &width);
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &height);
-
-        sf::Texture buffer_texture;
-
-        buffer_texture.create(width, height);
-
-        void* buffer = calloc(width * height, 4);
-        texture->bind();
-        glGetTexImage((GLenum)texture->get_target(), 0, (GLenum)GLTextureFormat::rgba, (GLenum)GLTextureType::type_unsigned_byte, buffer);
-        buffer_texture.update((uint8_t*)buffer);
-        free(buffer);
-
-        std::stringstream screenshot_name;
-        screenshot_name << "screenshot-" << seed << "-" << frames << ".png";
-
-        std::string name = screenshot_name.str();
-
-        auto image = buffer_texture.copyToImage();
-        image.flipVertically();
-        image.saveToFile(name);
-
-        std::cout << "Screenshot saved as '" << name << "'\n";
-    }
 };
 
 }
