@@ -34,6 +34,8 @@ public:
         drawer->set_static_frame_substeps(120);
         drawer->set_dynamic_frame_substeps(16);
         drawer->set_max_reflections(15);
+
+        frames_logging = 1;
     }
 
     void init_scene() override {
@@ -42,12 +44,12 @@ public:
         Material *m_red   = new MaterialLambertian({1, 0, 0});
         Material *m_green   = new MaterialLambertian({0, 1, 0});
         Material* m_white = new MaterialLambertian({1, 1, 1});
-        Material* m_light = new MaterialLambertianLight({0, 0, 0}, {2, 2, 2});
+        Material* m_light = new MaterialLambertianLight({2, 2, 2});
         Material* m_glass = new MaterialDielectric({0.8, 0.8, 1.0}, 1.3, -1, 0);
-        Material* m_white_glass = new MaterialDielectric({1,1,1}, 1.3, -1, 0.3);
-        Material* m_neon_orange = new MaterialLambertianLight({0, 0, 0}, Vec3f {220, 136, 56} / 255);
-        Material* m_neon_blue = new MaterialLambertianLight({0, 0, 0}, Vec3f {56, 136, 220} / 255);
-        Material* m_neon_green = new MaterialLambertianLight({0, 0, 0}, Vec3f {56, 220, 136} / 255);
+        Material* m_white_glass = new MaterialDielectric({1,1,1}, 1, -1, 1);
+        Material* m_neon_orange = new MaterialLambertianLight({1.725, 1.066, 0.439});
+        Material* m_neon_blue = new MaterialLambertianLight({0.439, 1.066, 1.725});
+        Material* m_neon_green = new MaterialLambertianLight({0.439, 1.725, 1.066});
 
         float lamp_size = 1.6;
         float box_size = 10;
@@ -63,13 +65,13 @@ public:
 
         scene->get_root_hittable()->add_children(new HittableSphere({2, 2, -5.5}, 1, m_light));
         scene->get_root_hittable()->add_children(new HittableSphere({0, 0, -5.5}, 1, m_light));
-        scene->get_root_hittable()->add_children(new HittableSphere({3, 3, -2.7}, 1.7, m_neon_orange));
-        scene->get_root_hittable()->add_children(new HittableSphere({3, -3, 1}, 1, m_neon_blue));
-        scene->get_root_hittable()->add_children(new HittableSphere({-5, -5, -5}, 1, m_neon_green));
+        scene->get_root_hittable()->add_children(new HittableSphere({4, 3, -3}, 1.6, m_neon_orange));
+        scene->get_root_hittable()->add_children(new HittableSphere({3, -3, 1}, 0.9, m_neon_blue));
+        scene->get_root_hittable()->add_children(new HittableSphere({-5, -5, -5}, 0.9, m_neon_green));
 
-        scene->get_root_hittable()->add_children(new HittableSphere({3, 3, -2.7}, 1.75, m_white_glass));
-        scene->get_root_hittable()->add_children(new HittableSphere({3, -3, 1}, 1.05, m_white_glass));
-        scene->get_root_hittable()->add_children(new HittableSphere({-5, -5, -5}, 1.05, m_white_glass));
+        scene->get_root_hittable()->add_children(new HittableSphere({4, 3, -3}, 1.7, m_white_glass));
+        scene->get_root_hittable()->add_children(new HittableSphere({3, -3, 1}, 1, m_white_glass));
+        scene->get_root_hittable()->add_children(new HittableSphere({-5, -5, -5}, 1, m_white_glass));
 
         build_cube(scene->get_root_hittable(), Matrix4f::scale_matrix(box_size, box_size, box_size), (Material*[6]){
                 m_white, nullptr,

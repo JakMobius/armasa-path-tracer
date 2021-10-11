@@ -115,7 +115,9 @@ add_executable(tracer
         examples/tank/tank_example_view.cpp
         examples/tank/tank_example_view.hpp
         examples/example_view.cpp
-        examples/example_view.hpp examples/random_spheres/random_spheres_example_view.cpp examples/random_spheres/random_spheres_example_view.hpp)
+        examples/example_view.hpp
+        examples/random_spheres/random_spheres_example_view.cpp
+        examples/random_spheres/random_spheres_example_view.hpp scene/buffer_chunk.cpp scene/buffer_chunk.hpp)
 
 include_directories(tracerc ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
 target_link_libraries(tracer GLEW::GLEW OpenGL sfml-graphics)

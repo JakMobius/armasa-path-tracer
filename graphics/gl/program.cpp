@@ -46,8 +46,6 @@ void Program::link() {
         std::string info(maxLength, '\0');
         glGetProgramInfoLog(handle, maxLength, &maxLength, &info[0]);
 
-        glDeleteProgram(handle);
-
         throw GLProgramLinkException(info);
     }
 }

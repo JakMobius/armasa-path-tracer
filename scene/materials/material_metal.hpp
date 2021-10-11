@@ -2,6 +2,7 @@
 
 #include "material.hpp"
 #include "../../utils/vec3.hpp"
+#include "../buffer_chunk.hpp"
 
 extern const int MaterialMetalType;
 
@@ -11,18 +12,15 @@ class MaterialMetal : public Material {
 public:
 
     MaterialMetal(const Vec3f& color, float roughness): color(color), roughness(roughness) {
-        set_gl_buffer_stride(4);
+        set_index_buffer_stride(4);
+        set_float_buffer_stride(4);
     }
 
-    virtual void render(SceneRenderer* renderer, int index) override {
-
-        auto scene_buffer = renderer->get_scene_buffer();
-        auto& index_buffer = scene_buffer->get_index_buffer()->get_storage();
-        auto& float_buffer = scene_buffer->get_float_buffer()->get_storage();
-
-        index_buffer[index]     = MaterialMetalType;
-        scene_buffer->write_vector(color, index);
-        float_buffer[index + 3] = roughness;
+    virtual void render(SceneRenderer* renderer, BufferChunk* chunk) override {
+        chunk->write_index(MaterialMetalType);
+        chunk->write_float_buffer_index();
+        chunk->write_vector(color, false);
+        chunk->write_float(roughness);
     };
 
     void set_color(const Vec3f& p_color) { color = p_color; }

@@ -27,7 +27,7 @@ const float pi = 3.1415926536;
 const float pi_2 = 6.2831853072;
 
 const float infinity = 1.0 / 0.0;
-const float epsilon = 0.0001;
+const float epsilon = 0.0005;
 const int max_stack_size = 20;
 
 const int HITTABLE_LIST_TYPE = 0;
@@ -52,20 +52,21 @@ struct HitRecord {
 HitRecord hit_record;
 vec3 ray_source;
 vec3 ray_direction;
+vec3 inv_ray_direction;
 
 int hittable_index_stack[max_stack_size];
 int hittable_child_index_stack[max_stack_size];
 int stack_size;
 int rand_index;
 
-void hittable_triangle_hit(int index);
-void hittable_sphere_hit(int index);
-void hittable_list_hit(int index);
+void hittable_triangle_hit(int index, ivec4 data);
+void hittable_sphere_hit(int index, ivec4 data);
+void hittable_list_hit(int index, ivec4 data);
 void hittable_hit(int index);
 
-void material_lambertian_reflect(bool has_light);
-void material_dielectric_reflect();
-void material_metal_reflect();
+void material_lambertian_reflect(int index, ivec4 data);
+void material_dielectric_reflect(int index, ivec4 data);
+void material_metal_reflect(int index, ivec4 data);
 
 bool material_reflect(int index);
 void trace_rays();
@@ -97,15 +98,16 @@ vec3 random_unit_vec3() {
 void hittable_triangle_hit(int index, ivec4 data) {
 	stack_size--;
 
-	vec3 edge1 = texelFetch(u_float_buffer, index + 1).xyz;
-	vec3 edge2 = texelFetch(u_float_buffer, index + 2).xyz;
+	int float_buffer_index = data.y;
+	vec3 edge1 = texelFetch(u_float_buffer, float_buffer_index + 1).xyz;
+	vec3 edge2 = texelFetch(u_float_buffer, float_buffer_index + 2).xyz;
 
 	vec3 h = cross(ray_direction, edge2);
 	float a = dot(edge1, h);
 
 	if(a > -epsilon && a < epsilon) return;
 
-	vec3 point_a = texelFetch(u_float_buffer, index).xyz;
+	vec3 point_a = texelFetch(u_float_buffer, float_buffer_index).xyz;
 	vec3 s = (ray_source - point_a) / a;
 	float u = dot(s, h);
 
@@ -119,15 +121,15 @@ void hittable_triangle_hit(int index, ivec4 data) {
 	float t = dot(edge2, q);
 
 	if (t > epsilon && t < hit_record.dist) {
-		vec3 normal_a = texelFetch(u_float_buffer, index + 3).xyz;
-		vec3 normal_b = texelFetch(u_float_buffer, index + 4).xyz;
-		vec3 normal_c = texelFetch(u_float_buffer, index + 5).xyz;
+		vec3 normal_a = texelFetch(u_float_buffer, float_buffer_index + 3).xyz;
+		vec3 normal_b = texelFetch(u_float_buffer, float_buffer_index + 4).xyz;
+		vec3 normal_c = texelFetch(u_float_buffer, float_buffer_index + 5).xyz;
 
 		hit_record.dist = t;
 		hit_record.point = ray_source + ray_direction * t;
 		hit_record.normal = normalize(normal_a * (1 - u - v) + normal_b * u + normal_c * v);
 		hit_record.surface_normal = normalize(cross(edge1, edge2));
-		hit_record.material = data.g;
+		hit_record.material = data.z;
 		hit_record.front_hit = dot(hit_record.normal, ray_direction) < 0;
 
 		if(!hit_record.front_hit) hit_record.normal = -hit_record.normal;
@@ -138,7 +140,8 @@ void hittable_triangle_hit(int index, ivec4 data) {
 void hittable_sphere_hit(int index, ivec4 data) {
 	stack_size--;
 
-	vec4 sphere_data = texelFetch(u_float_buffer, index);
+	int float_buffer_index = data.y;
+	vec4 sphere_data = texelFetch(u_float_buffer, float_buffer_index);
 	vec3 sphere_position = sphere_data.xyz;
 	float sphere_radius = sphere_data.w;
 
@@ -171,7 +174,7 @@ void hittable_sphere_hit(int index, ivec4 data) {
 	hit_record.point = point;
 	hit_record.dist = d;
 	hit_record.normal = (point - sphere_position) / sphere_radius;
-	hit_record.material = data.g;
+	hit_record.material = data.z;
 	hit_record.front_hit = dot(hit_record.normal, ray_direction) < 0;
 
 	if(!hit_record.front_hit) hit_record.normal = -hit_record.normal;
@@ -179,9 +182,8 @@ void hittable_sphere_hit(int index, ivec4 data) {
 }
 
 bool aabb_hit(vec3 aabb_lower, vec3 aabb_upper) {
-	vec3 invDv = 1 / ray_direction;
-	vec3 t0v = (aabb_lower - ray_source) * invDv;
-	vec3 t1v = (aabb_upper - ray_source) * invDv;
+	vec3 t0v = (aabb_lower - ray_source) * inv_ray_direction;
+	vec3 t1v = (aabb_upper - ray_source) * inv_ray_direction;
 
 	float t_min = 0;
 	float t_max = hit_record.dist;
@@ -189,7 +191,7 @@ bool aabb_hit(vec3 aabb_lower, vec3 aabb_upper) {
 	for(int i = 0; i < 3; i++) {
 		float t0 = t0v[i], t1 = t1v[i], t2 = t1;
 
-		if(invDv[i] < 0) {
+		if(inv_ray_direction[i] < 0) {
 			t1 = t0;
 			t0 = t2;
 		}
@@ -201,14 +203,20 @@ bool aabb_hit(vec3 aabb_lower, vec3 aabb_upper) {
 	return t_max > t_min;
 }
 
+// Format:
+// x: 29 high bits = children count, 3 low bits = 0b000 (hittable list type)
+// y: float buffer index
+// z, w: children indices
+
 void hittable_list_hit(int index, ivec4 data) {
 	int stack_index = stack_size - 1;
 	int current_child_index = hittable_child_index_stack[stack_index];
+	int float_buffer_index = data.y;
 
 	// If we've entered the hittable list, check its aabb
 	if(current_child_index == 0) {
-		vec3 aabb_lower = texelFetch(u_float_buffer, index).xyz;
-		vec3 aabb_upper = texelFetch(u_float_buffer, index + 1).xyz;
+		vec3 aabb_lower = texelFetch(u_float_buffer, float_buffer_index).xyz;
+		vec3 aabb_upper = texelFetch(u_float_buffer, float_buffer_index + 1).xyz;
 
 		if(!aabb_hit(aabb_lower, aabb_upper)) {
 			stack_size--;
@@ -216,7 +224,11 @@ void hittable_list_hit(int index, ivec4 data) {
 		}
 	}
 
-	int children_count = data.g;
+	// As it's required to store two child indices somehow
+	// in a single ivec4, we should pack children count
+	// in the same field with hittable type.
+
+	int children_count = data.x >> 3;
 
 	if(current_child_index == children_count) {
 		stack_size--;
@@ -226,7 +238,16 @@ void hittable_list_hit(int index, ivec4 data) {
 	hittable_child_index_stack[stack_index] = current_child_index + 1;
 	int children_index;
 
+	// It's quite important that first two children
+	// does not require additional texelFetch call,
+	// because BFS splts the world into a binary
+	// tree, so this check keeps the number of
+	// texelFetch calls equal to the depth of the BFS
+
 	if(current_child_index >= 2) {
+		// But if this node is wider, it's required to
+		// read additional texels
+
 		int first_child_index = (index << 2) + 2;
 		int children_pointer = first_child_index + current_child_index;
 		children_index = texelFetch(u_index_buffer, children_pointer >> 2)[children_pointer & 3];
@@ -239,8 +260,9 @@ void hittable_list_hit(int index, ivec4 data) {
 	stack_size++;
 }
 
-void material_metal_reflect(int index) {
-	vec4 material_color = texelFetch(u_float_buffer, index);
+void material_metal_reflect(int index, ivec4 data) {
+	int float_buffer_index = data.y;
+	vec4 material_color = texelFetch(u_float_buffer, float_buffer_index);
 	float fuzziness = material_color.a;
 
 	temp_color *= material_color.rgb;
@@ -256,18 +278,18 @@ void material_metal_reflect(int index) {
 	}
 
 	ray_direction = normalize(ray_direction);
+	inv_ray_direction = 1 / ray_direction;
 }
 
-void material_light_reflect(int index) {
-	vec3 material_color = texelFetch(u_float_buffer, index).rgb;
-	float cos = abs(dot(ray_direction, hit_record.normal));
-	cos *= cos;
-	cos = clamp(cos, 0.35, 1);
-	temp_color *= (vec3(1, 1, 1) * cos + material_color * (1 - cos));
+void material_light_reflect(int index, ivec4 data) {
+	int float_buffer_index = data.y;
+	vec3 material_color = texelFetch(u_float_buffer, float_buffer_index).rgb;
+	temp_color *= material_color;
 }
 
-void material_lambertian_reflect(int index) {
-	vec3 material_color = texelFetch(u_float_buffer, index).rgb;
+void material_lambertian_reflect(int index, ivec4 data) {
+	int float_buffer_index = data.y;
+	vec3 material_color = texelFetch(u_float_buffer, float_buffer_index).rgb;
 	temp_color *= material_color;
 
 	ray_direction = normalize(hit_record.normal + random_unit_vec3());
@@ -277,6 +299,8 @@ void material_lambertian_reflect(int index) {
 	if(projection < 0) {
 		ray_direction -= hit_record.surface_normal * projection * 2;
 	}
+
+	inv_ray_direction = 1 / ray_direction;
 }
 
 float fresnel(vec3 I, vec3 N, float etai, float etat) {
@@ -286,7 +310,7 @@ float fresnel(vec3 I, vec3 N, float etai, float etat) {
 	float sint = etai / etat * sqrt(1 - cosi * cosi);
 
 	// Total internal reflection
-	if (sint >= 1) return 1;
+	if (sint >= 1) return 1.0;
 
 	float cost = sqrt(max(0.f, 1 - sint * sint));
 	cosi = abs(cosi);
@@ -295,9 +319,10 @@ float fresnel(vec3 I, vec3 N, float etai, float etat) {
 	return (Rs * Rs + Rp * Rp) / 2;
 }
 
-void material_dielectric_reflect(int index) {
-	vec3 material_color = texelFetch(u_float_buffer, index).xyz;
-	vec3 material_data = texelFetch(u_float_buffer, index + 1).xyz;
+void material_dielectric_reflect(int index, ivec4 data) {
+	int float_buffer_index = data.y;
+	vec3 material_color = texelFetch(u_float_buffer, float_buffer_index).xyz;
+	vec3 material_data = texelFetch(u_float_buffer, float_buffer_index + 1).xyz;
 
 	float refr_coef = material_data.g;
 	float fuzziness = material_data.b;
@@ -325,11 +350,12 @@ void material_dielectric_reflect(int index) {
 	}
 
 	ray_direction = scatter_direction;
+	inv_ray_direction = 1 / ray_direction;
 }
 
 void hittable_hit(int index) {
 	ivec4 hittable_data = texelFetch(u_index_buffer, index);
-	int hittable_type = hittable_data.x;
+	int hittable_type = hittable_data.x & 7;
 
 	switch(hittable_type) {
 		case HITTABLE_LIST_TYPE:     hittable_list_hit(index, hittable_data);     break;
@@ -344,20 +370,13 @@ bool material_reflect(int index) {
 	int material_type = material_data.r;
 
 	switch(material_type) {
-		case MATERIAL_METAL: 	  		material_metal_reflect(index); 	    return false;
-		case MATERIAL_LAMBERTIAN: 		material_lambertian_reflect(index); return false;
-		case MATERIAL_LAMBERTIAN_LIGHT: material_light_reflect(index); 	    return true;
-		case MATERIAL_DIELECTRIC:       material_dielectric_reflect(index); return false;
+		case MATERIAL_METAL: 	  		material_metal_reflect(index, material_data); 	    return false;
+		case MATERIAL_LAMBERTIAN: 		material_lambertian_reflect(index, material_data);  return false;
+		case MATERIAL_LAMBERTIAN_LIGHT: material_light_reflect(index, material_data); 	    return true;
+		case MATERIAL_DIELECTRIC:       material_dielectric_reflect(index, material_data);  return false;
 	}
 
 	return false;
-}
-
-vec3 discrete(vec3 vec) {
-	vec.x = floor((vec.x + 1) / 2 * 5) / 5;
-	vec.y = floor((vec.y + 1) / 2 * 5) / 5;
-	vec.z = floor((vec.z + 1) / 2 * 5) / 5;
-	return vec;
 }
 
 void trace_rays() {
@@ -386,7 +405,6 @@ void trace_rays() {
 		if(isinf(hit_record.dist)) {
 			// Didn't hit anything
 //			temp_color = ray_direction;
-//			temp_color *= discrete(ray_direction);
 			temp_color *= u_background;
 			return;
 		}
@@ -429,6 +447,7 @@ void main( void ) {
 
 		ray_source = u_camera_position;
 		ray_direction = normalize(u_camera_focus + u_camera_width_vector * position.x + u_camera_height_vector * position.y);
+		inv_ray_direction = 1 / ray_direction;
 		trace_rays();
 
 		result_color += temp_color;

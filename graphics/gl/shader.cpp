@@ -53,8 +53,6 @@ void Shader::compile() {
         std::string info(maxLength, '\0');
         glGetShaderInfoLog(handle, maxLength, &maxLength, &info[0]);
 
-        glDeleteShader(handle);
-
         throw GLShaderCompileException(info);
     }
 }

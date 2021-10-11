@@ -3,6 +3,7 @@
 #include "hittable.hpp"
 #include "../../utils/vec3.hpp"
 #include "../materials/material.hpp"
+#include "../buffer_chunk.hpp"
 
 const int HittableSphereType = 1;
 
@@ -13,23 +14,19 @@ class HittableSphere : public Hittable {
 public:
 
     HittableSphere(const Vec3f& position, float radius, Material* material): Hittable(), position(position), radius(radius), material(material) {
-        set_gl_buffer_stride(4);
+        set_index_buffer_stride(3);
+        set_float_buffer_stride(4);
     }
 
-    void render(SceneRenderer* renderer, int index) override {
+    void render(SceneRenderer* renderer, BufferChunk* chunk) override {
         int material_index = renderer->get_material_index(material);
 
-        auto scene_buffer = renderer->get_scene_buffer();
-        auto& index_buffer = scene_buffer->get_index_buffer()->get_storage();
-        auto& float_buffer = scene_buffer->get_float_buffer()->get_storage();
+        chunk->write_index(HittableSphereType);
+        chunk->write_float_buffer_index();
+        chunk->write_index(material_index);
 
-        index_buffer[index] = HittableSphereType;
-        index_buffer[index + 1] = material_index;
-
-        float_buffer[index + 0] = position[0];
-        float_buffer[index + 1] = position[1];
-        float_buffer[index + 2] = position[2];
-        float_buffer[index + 3] = radius;
+        chunk->write_vector(position, false);
+        chunk->write_float(radius);
     }
 
     void register_materials(SceneRenderer* renderer) override {

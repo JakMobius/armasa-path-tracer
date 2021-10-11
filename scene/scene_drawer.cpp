@@ -43,7 +43,11 @@ SceneDrawer::SceneDrawer(Scene* scene, Graphics::Camera* camera, int width, int 
     accumulator_b = create_framebuffer(width, height);
     result_image = create_framebuffer(width, height);
 
-    if(!single_frame_buffer || !accumulator_a || !accumulator_b) {
+    if(!single_frame_buffer || !accumulator_a || !accumulator_b || !result_image) {
+        delete single_frame_buffer;
+        delete accumulator_a;
+        delete accumulator_b;
+        delete result_image;
         throw SceneDrawerUnavailableException();
     }
 

@@ -39,7 +39,7 @@ public:
         Material *m_white = new MaterialLambertian({1, 1, 1});
         Material *m_red   = new MaterialLambertian({1, 0, 0});
         Material *m_green = new MaterialLambertian({0, 1, 0});
-        Material *m_light = new MaterialLambertianLight({1, 1, 1}, {1, 1, 1});
+        Material *m_light = new MaterialLambertianLight({1, 1, 1});
         Material *m_glass = new MaterialDielectric({1, 0.874, 0.768}, 2, -1, 0);
 
         float lamp_size = 1.6;

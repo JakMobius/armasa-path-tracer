@@ -6,6 +6,7 @@ class BVHNode;
 #include <vector>
 #include "hittable.hpp"
 #include "../scene_renderer.hpp"
+#include "../buffer_chunk.hpp"
 
 extern const int HittableListType;
 
@@ -14,13 +15,14 @@ class HittableList : public Hittable {
 
 public:
     HittableList(): children() {
-        set_gl_buffer_stride(8);
+        set_index_buffer_stride(3);
+        set_float_buffer_stride(8);
     }
 
     void add_children(Hittable* hittable) {
         children.push_back(hittable);
         // Two fields + children indices
-        set_gl_buffer_stride(std::max(8, 2 + (int)children.size()));
+        set_index_buffer_stride(2 + children.size());
     };
 
     void register_hittables(SceneRenderer* renderer) override {
@@ -31,29 +33,20 @@ public:
         for(auto child : children) child->register_materials(renderer);
     }
 
-    void render(SceneRenderer* renderer, int index) override {
-
-        auto scene_buffer = renderer->get_scene_buffer();
-        auto& index_buffer = scene_buffer->get_index_buffer()->get_storage();
-        auto& float_buffer = scene_buffer->get_float_buffer()->get_storage();
-
+    void render(SceneRenderer* renderer, BufferChunk* chunk) override {
         int children_count = (int)children.size();
 
-        index_buffer[index] = HittableListType;
-        index_buffer[index + 1] = children_count;
+        chunk->write_index(HittableListType | (children_count << 3));
+        chunk->write_float_buffer_index();
 
         AABB aabb = get_bounding_box();
 
-        float_buffer[index]     = aabb.lower[0];
-        float_buffer[index + 1] = aabb.lower[1];
-        float_buffer[index + 2] = aabb.lower[2];
-        float_buffer[index + 4] = aabb.upper[0];
-        float_buffer[index + 5] = aabb.upper[1];
-        float_buffer[index + 6] = aabb.upper[2];
+        chunk->write_vector(aabb.lower);
+        chunk->write_vector(aabb.upper);
 
         for(int i = 0; i < children_count; i++) {
             int children_index = renderer->get_hittable_index(children[i]);
-            index_buffer[index + 2 + i] = children_index;
+            chunk->write_index(children_index);
         }
     }
 

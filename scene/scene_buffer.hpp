@@ -46,20 +46,15 @@ public:
     Graphics::GLTextureBuffer<int>* get_index_buffer() { return scene_index_buffer; }
     Graphics::GLTextureBuffer<float>* get_float_buffer() { return scene_float_buffer; }
 
-    void require_capacity(int capacity) {
+    void require_index_buffer_capacity(int capacity) {
         if((int)scene_index_buffer->get_storage().size() < capacity) {
             scene_index_buffer->get_storage().resize(capacity);
         }
+    }
 
+    void require_float_buffer_capacity(int capacity) {
         if((int)scene_float_buffer->get_storage().size() < capacity) {
             scene_float_buffer->get_storage().resize(capacity);
         }
     }
-
-    void write_vector(const Vec3f& vector, int index) {
-        auto& float_buffer = scene_float_buffer->get_storage();
-        float_buffer[index + 0] = vector[0];
-        float_buffer[index + 1] = vector[1];
-        float_buffer[index + 2] = vector[2];
-    };
 };

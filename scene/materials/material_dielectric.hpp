@@ -1,6 +1,7 @@
 #pragma once
 
 #include "material.hpp"
+#include "../buffer_chunk.hpp"
 
 extern const int MaterialDielectricType;
 
@@ -16,20 +17,19 @@ public:
         roughness(roughness),
         refr_coef(refr_coef),
         fuzziness(fuzziness) {
-        set_gl_buffer_stride(8);
+        set_index_buffer_stride(2);
+        set_float_buffer_stride(8);
     }
 
-    virtual void render(SceneRenderer* renderer, int index) override {
+    virtual void render(SceneRenderer* renderer, BufferChunk* chunk) override {
 
-        auto scene_buffer = renderer->get_scene_buffer();
-        auto& index_buffer = scene_buffer->get_index_buffer()->get_storage();
-        auto& float_buffer = scene_buffer->get_float_buffer()->get_storage();
+        chunk->write_index(MaterialDielectricType);
+        chunk->write_float_buffer_index();
 
-        index_buffer[index]     = MaterialDielectricType;
-        scene_buffer->write_vector(color, index);
-        float_buffer[index + 4] = roughness;
-        float_buffer[index + 5] = refr_coef;
-        float_buffer[index + 6] = fuzziness;
+        chunk->write_vector(color);
+        chunk->write_float(roughness);
+        chunk->write_float(refr_coef);
+        chunk->write_float(fuzziness);
     };
 
     void set_color(const Vec3f& p_color) { color = p_color; }

@@ -4,24 +4,15 @@
 #include "hittables/hittable_triangle.hpp"
 #include "../obj/tiny_obj_loader.h"
 
-namespace CubeEdges {
-    const int x_pos = 0b000001;
-    const int x_neg = 0b000010;
-    const int y_pos = 0b000100;
-    const int y_neg = 0b001000;
-    const int z_pos = 0b010000;
-    const int z_neg = 0b100000;
-}
-
-void build_cube(HittableList* container, const Matrix4f& transform, Material* material, int bitmap) {
+void build_cube(HittableList* container, const Matrix4f& transform, Material* material, CubeEdges bitmap) {
 
     Material* array[6] = {
-        (bitmap & CubeEdges::x_pos) ? material : nullptr,
-        (bitmap & CubeEdges::x_neg) ? material : nullptr,
-        (bitmap & CubeEdges::y_pos) ? material : nullptr,
-        (bitmap & CubeEdges::y_neg) ? material : nullptr,
-        (bitmap & CubeEdges::z_pos) ? material : nullptr,
-        (bitmap & CubeEdges::z_neg) ? material : nullptr,
+        (bitmap & CubeEdges::x_pos) == CubeEdges::none ? material : nullptr,
+        (bitmap & CubeEdges::x_neg) == CubeEdges::none ? material : nullptr,
+        (bitmap & CubeEdges::y_pos) == CubeEdges::none ? material : nullptr,
+        (bitmap & CubeEdges::y_neg) == CubeEdges::none ? material : nullptr,
+        (bitmap & CubeEdges::z_pos) == CubeEdges::none ? material : nullptr,
+        (bitmap & CubeEdges::z_neg) == CubeEdges::none ? material : nullptr,
     };
 
     build_cube(container, transform, array);

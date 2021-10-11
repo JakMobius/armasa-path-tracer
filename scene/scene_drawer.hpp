@@ -13,7 +13,7 @@
 
 class SceneDrawerUnavailableException : public std::exception {
 public:
-    [[nodiscard]] const char * what() const noexcept override { return "SceneDrawer could not setup context to draw_chunk the scene"; }
+    [[nodiscard]] const char * what() const noexcept override { return "SceneDrawer could not setup context to draw the scene"; }
 };
 
 class SceneDrawer {
@@ -57,6 +57,7 @@ public:
         delete single_frame_buffer;
         delete accumulator_a;
         delete accumulator_b;
+        delete result_image;
     };
 
     void draw_chunk() {

@@ -30,7 +30,7 @@ public:
     }
 };
 
-class GLStringException : std::exception {
+class GLStringException : public std::exception {
     std::string reason;
 
 public:

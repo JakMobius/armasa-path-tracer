@@ -86,7 +86,7 @@ struct Vec3 {
 
     inline Vec3<T> operator/(const Vec3<T> &second) const { return Vec3<T> {content / second.content}; }
 
-    inline Vec3<T> operator*(const T k) const { return {content * k}; }
+    inline Vec3<T> operator*(const T k) const { return Vec3<T> {content * k}; }
 
     inline Vec3<T> operator/(T k) const { return Vec3<T> {content / k}; }
 

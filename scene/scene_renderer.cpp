@@ -6,30 +6,46 @@
 #include "materials/material.hpp"
 #include "hittables/hittable.hpp"
 #include "hittables/hittable_list.hpp"
-#include "hittables/bvh_node.hpp"
+
+void SceneRenderer::allocate_buffers(SceneBufferSerializable* serializable) {
+    int index_stride = serializable->get_index_buffer_stride();
+    int float_stride = serializable->get_float_buffer_stride();
+
+    current_block_lengths.index_buffer_position = align(current_block_lengths.index_buffer_position + index_stride);
+    current_block_lengths.float_buffer_position = align(current_block_lengths.float_buffer_position + float_stride);
+}
 
 void SceneRenderer::enqueue_hittable_render(Hittable* hittable) {
     hittable_render_queue.push(hittable);
-    hittable_map.insert({ hittable, material_block_length + hittable_block_length });
 
-    hittable_block_length = align(hittable_block_length + hittable->get_gl_buffer_stride());
+    hittable_map.insert({ hittable, current_block_lengths });
+
+    allocate_buffers(hittable);
+}
+
+void SceneRenderer::render_single(SceneBuffer* buffer, SceneBufferSerializable* serializable, SerializableChunkData* bounds) {
+    BufferChunk chunk(
+        buffer,
+        bounds->index_buffer_position,
+        bounds->float_buffer_position,
+        serializable->get_index_buffer_stride(),
+        serializable->get_float_buffer_stride()
+    );
+    serializable->render(this, &chunk);
 }
 
 void SceneRenderer::render(SceneBuffer* buffer, Scene* scene) {
-    if(material_block_length < 0 || hittable_block_length < 0) layout(scene);
+    if(!layout_valid) layout(scene);
 
-    buffer->require_capacity(material_block_length + hittable_block_length);
+    buffer->require_index_buffer_capacity(current_block_lengths.index_buffer_position);
+    buffer->require_float_buffer_capacity(current_block_lengths.float_buffer_position);
 
     scene_buffer = buffer;
 
-    buffer->set_entry_hittable_index(material_block_length / alignment);
+    buffer->set_entry_hittable_index(material_block_length.index_buffer_position / alignment);
 
-    for(auto entry : material_map) {
-        entry.first->render(this, entry.second);
-    }
-    for(auto entry : hittable_map) {
-        entry.first->render(this, entry.second);
-    }
+    for(auto entry : material_map) render_single(buffer, entry.first, &entry.second);
+    for(auto entry : hittable_map) render_single(buffer, entry.first, &entry.second);
 
     buffer->set_needs_synchronize();
 
@@ -42,14 +58,17 @@ void SceneRenderer::layout(Scene* scene) {
     hittable_map.clear();
     material_map.clear();
 
-    material_block_length = 0;
-    hittable_block_length = 0;
+    material_block_length.reset();
+    current_block_lengths.reset();
 
     while(!hittable_render_queue.empty()) {
         hittable_render_queue.pop();
     }
 
     bvh_root->register_materials(this);
+
+    material_block_length = current_block_lengths;
+
     enqueue_hittable_render(bvh_root);
 
     while(!hittable_render_queue.empty()) {
@@ -58,11 +77,14 @@ void SceneRenderer::layout(Scene* scene) {
 
         next->register_hittables(this);
     }
+
+    layout_valid = true;
 }
 
 void SceneRenderer::register_material(Material* material) {
     if(material_map.find(material) == material_map.end()) {
-        material_map.insert({material, material_block_length});
-        material_block_length = align(material_block_length + material->get_gl_buffer_stride());
+        material_map.insert({material, current_block_lengths});
+
+        allocate_buffers(material);
     }
 }
