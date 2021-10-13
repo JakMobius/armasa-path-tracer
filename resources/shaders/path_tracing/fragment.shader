@@ -39,6 +39,8 @@ const int MATERIAL_LAMBERTIAN = 1;
 const int MATERIAL_LAMBERTIAN_LIGHT = 2;
 const int MATERIAL_DIELECTRIC = 3;
 
+int memory_reads = 0;
+
 struct HitRecord {
 	float dist;
 	vec3 surface_normal;
@@ -241,8 +243,7 @@ void hittable_list_hit(int index, ivec4 data) {
 	// It's quite important that first two children
 	// does not require additional texelFetch call,
 	// because BFS splts the world into a binary
-	// tree, so this check keeps the number of
-	// texelFetch calls equal to the depth of the BFS
+	// tree, so this check saves a lot of texelFetch calls
 
 	if(current_child_index >= 2) {
 		// But if this node is wider, it's required to

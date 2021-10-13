@@ -31,9 +31,9 @@ public:
 
         drawer->get_post_processing_program()->set_brightness(1.0);
         drawer->get_post_processing_program()->set_gamma(1);
-        drawer->set_static_frame_substeps(120);
+        drawer->set_static_frame_substeps(200);
         drawer->set_dynamic_frame_substeps(16);
-        drawer->set_max_reflections(15);
+        drawer->set_max_reflections(30);
 
         frames_logging = 1;
     }
