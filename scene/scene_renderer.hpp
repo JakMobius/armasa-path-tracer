@@ -15,11 +15,9 @@ class SceneBufferSerializable;
 
 struct SerializableChunkData {
     int index_buffer_position;
-    int float_buffer_position;
 
     void reset() {
         index_buffer_position = 0;
-        float_buffer_position = 0;
     }
 };
 
@@ -32,8 +30,8 @@ class SceneRenderer {
 
     std::queue<Hittable*>  hittable_render_queue;
 
-    SerializableChunkData material_block_length = { -1, -1 };
-    SerializableChunkData current_block_lengths = {-1, -1 };
+    SerializableChunkData material_block_length = { -1 };
+    SerializableChunkData current_block_lengths = {-1 };
 
     bool layout_valid = false;
 

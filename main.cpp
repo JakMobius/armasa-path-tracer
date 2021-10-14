@@ -9,9 +9,9 @@ int main(){
     // Be sure to read warnings in README before running.
 
 //    RandomSpheresExampleView view;
-//     CornellBoxSphereExampleView view;
+     CornellBoxSphereExampleView view;
     // CornellBoxExampleView view;
-     TankExampleView view;
+//     TankExampleView view;
 
     view.init();
     view.loop();

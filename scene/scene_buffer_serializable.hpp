@@ -8,7 +8,6 @@ class Scene;
 
 class SceneBufferSerializable {
 
-    int gl_float_buffer_stride = 0;
     int gl_index_buffer_stride = 0;
     Scene* scene = nullptr;
 
@@ -16,9 +15,6 @@ public:
 
     void set_index_buffer_stride(int stride);
     int get_index_buffer_stride() const { return gl_index_buffer_stride; }
-
-    void set_float_buffer_stride(int stride);
-    int get_float_buffer_stride() const { return gl_float_buffer_stride; }
 
     virtual void render(SceneRenderer* renderer, BufferChunk* chunk);
 

@@ -6,13 +6,12 @@
 #include "materials/material.hpp"
 #include "hittables/hittable.hpp"
 #include "hittables/hittable_list.hpp"
+#include "hittables/bvh/bvh_tree.hpp"
 
 void SceneRenderer::allocate_buffers(SceneBufferSerializable* serializable) {
     int index_stride = serializable->get_index_buffer_stride();
-    int float_stride = serializable->get_float_buffer_stride();
 
     current_block_lengths.index_buffer_position = align(current_block_lengths.index_buffer_position + index_stride);
-    current_block_lengths.float_buffer_position = align(current_block_lengths.float_buffer_position + float_stride);
 }
 
 void SceneRenderer::enqueue_hittable_render(Hittable* hittable) {
@@ -27,9 +26,7 @@ void SceneRenderer::render_single(SceneBuffer* buffer, SceneBufferSerializable* 
     BufferChunk chunk(
         buffer,
         bounds->index_buffer_position,
-        bounds->float_buffer_position,
-        serializable->get_index_buffer_stride(),
-        serializable->get_float_buffer_stride()
+        serializable->get_index_buffer_stride()
     );
     serializable->render(this, &chunk);
 }
@@ -38,7 +35,6 @@ void SceneRenderer::render(SceneBuffer* buffer, Scene* scene) {
     if(!layout_valid) layout(scene);
 
     buffer->require_index_buffer_capacity(current_block_lengths.index_buffer_position);
-    buffer->require_float_buffer_capacity(current_block_lengths.float_buffer_position);
 
     scene_buffer = buffer;
 
@@ -53,7 +49,7 @@ void SceneRenderer::render(SceneBuffer* buffer, Scene* scene) {
 }
 
 void SceneRenderer::layout(Scene* scene) {
-    bvh_root = scene->get_root_hittable()->to_bvh_node();
+    bvh_root = new BVHTree(scene->get_root_hittable());
 
     hittable_map.clear();
     material_map.clear();

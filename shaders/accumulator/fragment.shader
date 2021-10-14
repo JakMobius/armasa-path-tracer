@@ -1,4 +1,3 @@
-#version 410 core
 
 uniform sampler2D u_input_texture;
 uniform sampler2D u_old_texture;

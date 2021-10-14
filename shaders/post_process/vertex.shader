@@ -1,5 +1,3 @@
-#version 410 core
-
 layout(location = 0) in vec2 a_position;
 out vec2 uv;
 

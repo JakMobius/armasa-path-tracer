@@ -5,6 +5,7 @@
 #include "shader.hpp"
 #include "../error_handling.hpp"
 #include <sstream>
+#include <iostream>
 #include <fstream>
 
 namespace Graphics {
@@ -21,18 +22,24 @@ Shader::~Shader() {
 
 void Shader::compile() {
     std::stringstream shader_source_path;
-    shader_source_path << shader_path << name << ".shader";
+    shader_source_path << "./" << shader_path << name << ".shader";
     std::string shader_path = shader_source_path.str();
     std::ifstream shader_source_fstream(shader_path);
 
+    if(!shader_source_fstream) {
+//        std::cout << shader_path << "\n";
+//        system("ls resources");
+//        std::cout << "Error: " << strerror(errno);
+        throw GLShaderCompileException("Could not open shader file");
+    }
+
     std::stringstream shader_source_stream;
-    shader_source_stream << shader_source_fstream.rdbuf() << '\0';
+    shader_source_stream << "#version 410 core\n" << shader_source_fstream.rdbuf() << '\0';
+    const char* shader_source = strdup(shader_source_stream.str().c_str());
     shader_source_fstream.close();
 
-    std::string shader_source = shader_source_stream.str().c_str();
-
-    const GLint lengths[] = { (GLint)shader_source.size() };
-    const char* sources[] = { shader_source.c_str() };
+    const GLint lengths[] = { (GLint)strlen(shader_source) };
+    const char* sources[] = { shader_source };
 
     handle = glCreateShader((GLenum)type);
     GLException::check();

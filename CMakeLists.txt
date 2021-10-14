@@ -96,8 +96,8 @@ add_executable(tracer
         graphics/programs/accumulator_program.hpp
         graphics/programs/present_program.cpp
         graphics/programs/present_program.hpp
-        scene/hittables/bvh_node.cpp
-        scene/hittables/bvh_node.hpp
+        scene/hittables/bvh/bvh_node.cpp
+        scene/hittables/bvh/bvh_node.hpp
         scene/aabb.cpp
         scene/aabb.hpp
         obj/tiny_obj_loader.h
@@ -118,7 +118,32 @@ add_executable(tracer
         examples/example_view.cpp
         examples/example_view.hpp
         examples/random_spheres/random_spheres_example_view.cpp
-        examples/random_spheres/random_spheres_example_view.hpp scene/buffer_chunk.cpp scene/buffer_chunk.hpp)
+        examples/random_spheres/random_spheres_example_view.hpp scene/buffer_chunk.cpp scene/buffer_chunk.hpp scene/hittables/bvh/bvh_tree.cpp scene/hittables/bvh/bvh_tree.hpp)
 
 include_directories(tracerc ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
 target_link_libraries(tracer GLEW::GLEW OpenGL::GL sfml-graphics)
+
+add_custom_command(TARGET tracer PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/resources/ $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
+
+string(LENGTH ${CMAKE_SOURCE_DIR} CMAKE_SOURCE_DIR_LENGTH)
+file(GLOB_RECURSE files "${CMAKE_SOURCE_DIR}/shaders/**/vertex.shader" "${CMAKE_SOURCE_DIR}/shaders/**/fragment.shader")
+foreach(file ${files})
+    string(SUBSTRING ${file} ${CMAKE_SOURCE_DIR_LENGTH} -1 file)
+    string(REGEX REPLACE "/[^/]*$" "" file_no_ext ${file})
+    message("Compiling shader ${CMAKE_SOURCE_DIR}${file} to ${CMAKE_BINARY_DIR}/resources${file}")
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/resources${file_no_ext})
+    add_custom_command(
+        TARGET tracer
+        POST_BUILD
+        DEPENDS always_rebuild
+        COMMAND gcc -E -P -x c ${CMAKE_SOURCE_DIR}${file} -o ${CMAKE_BINARY_DIR}/resources${file}
+        DEPENDS ${file}
+    )
+endforeach()
+
+add_custom_command(
+    OUTPUT always_rebuild
+    COMMAND cmake -E echo
+)

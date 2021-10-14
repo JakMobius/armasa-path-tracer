@@ -11,13 +11,12 @@ class MaterialLambertianLight : public Material {
 public:
 
     MaterialLambertianLight(const Vec3f& color): color(color) {
-        set_index_buffer_stride(2);
-        set_float_buffer_stride(3);
+        set_index_buffer_stride(8);
     }
 
-    virtual void render(SceneRenderer* renderer, BufferChunk* chunk) override {
+    virtual void render(SceneRenderer*, BufferChunk* chunk) override {
         chunk->write_index(MaterialLambertianLightType);
-        chunk->write_float_buffer_index();
+        chunk->align();
         chunk->write_vector(color);
     };
 

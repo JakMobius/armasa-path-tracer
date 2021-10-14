@@ -14,17 +14,16 @@ class HittableSphere : public Hittable {
 public:
 
     HittableSphere(const Vec3f& position, float radius, Material* material): Hittable(), position(position), radius(radius), material(material) {
-        set_index_buffer_stride(3);
-        set_float_buffer_stride(4);
+        set_index_buffer_stride(8);
     }
 
     void render(SceneRenderer* renderer, BufferChunk* chunk) override {
         int material_index = renderer->get_material_index(material);
 
         chunk->write_index(HittableSphereType);
-        chunk->write_float_buffer_index();
         chunk->write_index(material_index);
 
+        chunk->align();
         chunk->write_vector(position, false);
         chunk->write_float(radius);
     }

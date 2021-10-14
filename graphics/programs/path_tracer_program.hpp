@@ -16,7 +16,6 @@ namespace Graphics {
 class TracerProgram: public BoundedProgram {
     GLTextureBuffer<float>* random_buffer;
     Uniform screen_size_uniform;
-    Uniform scene_float_buffer_uniform;
     Uniform scene_index_buffer_uniform;
     Uniform scene_random_buffer_uniform;
     Uniform random_buffer_length_uniform;
@@ -54,14 +53,13 @@ public:
         update_random_buffer();
 
         scene->synchronize_if_needed();
-        scene->bind_buffers(GL_TEXTURE0, GL_TEXTURE1);
+        scene->bind_buffers(GL_TEXTURE0);
 
         random_buffer->synchronize();
-        random_buffer->bind_texture(GL_TEXTURE2);
+        random_buffer->bind_texture(GL_TEXTURE1);
 
         scene_index_buffer_uniform.set1i(0);
-        scene_float_buffer_uniform.set1i(1);
-        scene_random_buffer_uniform.set1i(2);
+        scene_random_buffer_uniform.set1i(1);
 
         random_buffer_length_uniform.set1i(random_buffer_length);
         seed_uniform.set1ui(random());

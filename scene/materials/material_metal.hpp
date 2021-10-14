@@ -12,13 +12,12 @@ class MaterialMetal : public Material {
 public:
 
     MaterialMetal(const Vec3f& color, float roughness): color(color), roughness(roughness) {
-        set_index_buffer_stride(4);
-        set_float_buffer_stride(4);
+        set_index_buffer_stride(8);
     }
 
-    virtual void render(SceneRenderer* renderer, BufferChunk* chunk) override {
+    virtual void render(SceneRenderer*, BufferChunk* chunk) override {
         chunk->write_index(MaterialMetalType);
-        chunk->write_float_buffer_index();
+        chunk->align();
         chunk->write_vector(color, false);
         chunk->write_float(roughness);
     };

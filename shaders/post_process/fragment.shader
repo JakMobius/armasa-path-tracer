@@ -1,5 +1,3 @@
-#version 410 core
-
 uniform sampler2D u_texture;
 uniform float u_gamma;
 uniform float u_brightness;

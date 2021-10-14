@@ -22,8 +22,7 @@ public:
 
     HittableTriangle(const Vec3f& point_a, const Vec3f& point_b, const Vec3f& point_c, Material* material):
         Hittable(), point_a(point_a), point_b(point_b), point_c(point_c), material(material) {
-        set_index_buffer_stride(3);
-        set_float_buffer_stride(24);
+        set_index_buffer_stride(28);
 
         normal_a = normal_b = normal_c = (point_b - point_a).cross(point_c - point_a).normal();
     }
@@ -32,9 +31,9 @@ public:
         int material_index = renderer->get_material_index(material);
 
         chunk->write_index(HittableTriangleType);
-        chunk->write_float_buffer_index();
         chunk->write_index(material_index);
 
+        chunk->align();
         chunk->write_vector(point_a);
         chunk->write_vector(point_b - point_a);
         chunk->write_vector(point_c - point_a);

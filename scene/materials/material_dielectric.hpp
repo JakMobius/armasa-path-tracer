@@ -17,15 +17,14 @@ public:
         roughness(roughness),
         refr_coef(refr_coef),
         fuzziness(fuzziness) {
-        set_index_buffer_stride(2);
-        set_float_buffer_stride(8);
+        set_index_buffer_stride(12);
     }
 
-    virtual void render(SceneRenderer* renderer, BufferChunk* chunk) override {
+    virtual void render(SceneRenderer*, BufferChunk* chunk) override {
 
         chunk->write_index(MaterialDielectricType);
-        chunk->write_float_buffer_index();
 
+        chunk->align();
         chunk->write_vector(color);
         chunk->write_float(roughness);
         chunk->write_float(refr_coef);

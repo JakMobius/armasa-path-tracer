@@ -9,7 +9,6 @@ namespace Graphics {
 TracerProgram::TracerProgram(int width, int height):
     BoundedProgram("path_tracing/vertex", "path_tracing/fragment"),
     screen_size_uniform(this, "u_screen_size"),
-    scene_float_buffer_uniform(this, "u_float_buffer"),
     scene_index_buffer_uniform(this, "u_index_buffer"),
     scene_random_buffer_uniform(this, "u_random_buffer"),
     random_buffer_length_uniform(this, "u_random_buffer_length"),
