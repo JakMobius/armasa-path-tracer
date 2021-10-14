@@ -14,7 +14,7 @@ set(SFML_BUILD_GRAPHICS true)
 set(WARNING_FLAGS "-Wall -Wextra -Wno-multichar -Wno-unused-result -Wno-deprecated-declarations")
 
 set(CMAKE_EXE_LINKER_FLAGS "-pthread")
-set(CMAKE_CXX_FLAGS   "-O1 -g ${WARNING_FLAGS} -fdeclspec -march=native -DGL_SILENCE_DEPRECATION")
+set(CMAKE_CXX_FLAGS   "-O1 -g ${WARNING_FLAGS} -fdeclspec -fsanitize=address -march=native -DGL_SILENCE_DEPRECATION")
 
 add_executable(tracer
         main.cpp
@@ -118,7 +118,13 @@ add_executable(tracer
         examples/example_view.cpp
         examples/example_view.hpp
         examples/random_spheres/random_spheres_example_view.cpp
-        examples/random_spheres/random_spheres_example_view.hpp scene/buffer_chunk.cpp scene/buffer_chunk.hpp scene/hittables/bvh/bvh_tree.cpp scene/hittables/bvh/bvh_tree.hpp)
+        examples/random_spheres/random_spheres_example_view.hpp
+        scene/buffer_chunk.cpp
+        scene/buffer_chunk.hpp
+        scene/hittables/bvh/bvh_tree.cpp
+        scene/hittables/bvh/bvh_tree.hpp
+        examples/playground/playground_view.cpp
+        examples/playground/playground_view.hpp)
 
 include_directories(tracerc ${GLEW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
 target_link_libraries(tracer GLEW::GLEW OpenGL::GL sfml-graphics)
@@ -128,22 +134,24 @@ add_custom_command(TARGET tracer PRE_BUILD
         ${CMAKE_SOURCE_DIR}/resources/ $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
 
 string(LENGTH ${CMAKE_SOURCE_DIR} CMAKE_SOURCE_DIR_LENGTH)
-file(GLOB_RECURSE files "${CMAKE_SOURCE_DIR}/shaders/**/vertex.shader" "${CMAKE_SOURCE_DIR}/shaders/**/fragment.shader")
-foreach(file ${files})
-    string(SUBSTRING ${file} ${CMAKE_SOURCE_DIR_LENGTH} -1 file)
-    string(REGEX REPLACE "/[^/]*$" "" file_no_ext ${file})
-    message("Compiling shader ${CMAKE_SOURCE_DIR}${file} to ${CMAKE_BINARY_DIR}/resources${file}")
+
+file(GLOB_RECURSE all_shaders "${CMAKE_SOURCE_DIR}/shaders/**/*.shader")
+file(GLOB_RECURSE main_shaders "${CMAKE_SOURCE_DIR}/shaders/**/vertex.shader" "${CMAKE_SOURCE_DIR}/shaders/**/fragment.shader")
+
+foreach(file ${main_shaders})
+    string(SUBSTRING ${file} ${CMAKE_SOURCE_DIR_LENGTH} -1 file_relative)
+    string(REGEX REPLACE "/[^/]*$" "" file_no_ext ${file_relative})
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/resources${file_no_ext})
+
     add_custom_command(
-        TARGET tracer
-        POST_BUILD
-        DEPENDS always_rebuild
-        COMMAND gcc -E -P -x c ${CMAKE_SOURCE_DIR}${file} -o ${CMAKE_BINARY_DIR}/resources${file}
-        DEPENDS ${file}
+        OUTPUT ${CMAKE_BINARY_DIR}/resources${file_relative}
+        COMMAND gcc -E -P -x c ${CMAKE_SOURCE_DIR}${file_relative} -o ${CMAKE_BINARY_DIR}/resources${file_relative}
+        DEPENDS ${all_shaders}
     )
+
+    list(INSERT output_shaders 0 ${CMAKE_BINARY_DIR}/resources${file_relative})
+
+    #    message("Compiling shader ${CMAKE_SOURCE_DIR}${file} to ${CMAKE_BINARY_DIR}/resources${file}")
 endforeach()
 
-add_custom_command(
-    OUTPUT always_rebuild
-    COMMAND cmake -E echo
-)
+add_custom_target(shaders ALL DEPENDS ${output_shaders})

@@ -31,10 +31,9 @@ int bvh_traverse(int index) {
     vec3 current_aabb_lower = vec3(0, 0, 0);
     vec3 current_aabb_upper = initial_aabb_upper;
 
-    int traversed = 5;
+    int traversed = 0;
 
     while(bvh_stack_size > 0) {
-        traversed++;
         int next_index = bvh_stack[--bvh_stack_size];
 
         ivec4 node_data = texelFetch(u_index_buffer, next_index + bvh_base_index);
@@ -46,6 +45,7 @@ int bvh_traverse(int index) {
             hittable_hit(int(node_flags & BVH_NODE_FLAG_MASK));
             current_aabb_upper = bvh_aabb_upper_stack[bvh_stack_size];
             current_aabb_lower = bvh_aabb_lower_stack[bvh_stack_size];
+            traversed++;
             continue;
         }
 
@@ -64,15 +64,15 @@ int bvh_traverse(int index) {
         current_aabb_upper = new_aabb_upper;
 
         bvh_stack[bvh_stack_size] = next_index * 2 + 1;
-        current_aabb_upper = bvh_aabb_upper_stack[bvh_stack_size];
-        current_aabb_lower = bvh_aabb_lower_stack[bvh_stack_size];
+        bvh_aabb_upper_stack[bvh_stack_size] = current_aabb_upper;
+        bvh_aabb_lower_stack[bvh_stack_size] = current_aabb_lower;
         bvh_stack_size++;
 
         bvh_stack[bvh_stack_size] = next_index * 2;
-        current_aabb_upper = bvh_aabb_upper_stack[bvh_stack_size];
-        current_aabb_lower = bvh_aabb_lower_stack[bvh_stack_size];
+        bvh_aabb_upper_stack[bvh_stack_size] = current_aabb_upper;
+        bvh_aabb_lower_stack[bvh_stack_size] = current_aabb_lower;
         bvh_stack_size++;
     }
 
-    return 5;
+    return traversed;
 }
