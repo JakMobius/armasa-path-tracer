@@ -24,7 +24,7 @@ public:
         camera->set_focus_distance(2);
         camera->matrix = Matrix4f::rotation_y_matrix(-0.4) * camera->matrix;
 
-        controller->set_camera_speed(0.01);
+//        controller->set_camera_speed(0.01);
     }
 
     void init_drawer() override {
@@ -45,6 +45,9 @@ public:
 
         Material *m_light = new MaterialLambertianLight({0, 1, 0});
 
-        scene->get_root_hittable()->add_children(new HittableSphere({0, 0, 0}, 1, m_light));
+        scene->get_root_hittable()->add_children(new HittableSphere({0, 0, 0}, 0.8, m_light));
+        scene->get_root_hittable()->add_children(new HittableSphere({0, 2, 0}, 0.8, m_light));
+        scene->get_root_hittable()->add_children(new HittableSphere({2, 2, 0}, 0.8, m_light));
+        scene->get_root_hittable()->add_children(new HittableSphere({2, 0, 2}, 0.8, m_light));
     }
 };

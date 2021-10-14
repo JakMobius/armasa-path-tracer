@@ -8,7 +8,7 @@ class BVHTree;
 class BVHTree : public Hittable {
     std::vector<BVHNode> nodes;
     std::vector<Hittable*> leaves;
-    int stride;
+    int stride = 0;
 
 public:
     explicit BVHTree(Hittable* hittable): nodes(), leaves() {
@@ -26,7 +26,8 @@ public:
     }
 
     virtual void render(SceneRenderer* renderer, BufferChunk* chunk) override {
-        chunk->write_vector(nodes[0].bounding_box.upper, true);
+
+        chunk->write_vector(nodes[0].bounding_box.lower, true);
         for(int i = 0; i < stride; i++) {
             BVHNode* node = &nodes[i];
 
@@ -44,8 +45,8 @@ public:
     }
 
     BVHNode* get_node(int index) {
-        if(nodes.size() <= index) {
-            if(nodes.size() == 0) nodes.resize(16, {});
+        if((int)nodes.size() <= index) {
+            if(nodes.empty()) nodes.resize(16, {});
             else nodes.resize(nodes.size() * 2, {});
         }
         if(index + 1 > stride) stride = index + 1;

@@ -61,8 +61,7 @@ public:
         }
     }
 
-    virtual void flatten(std::vector<Hittable*>* storage) {
-        storage->push_back(this);
+    void flatten(std::vector<Hittable*>* storage) override {
         for(auto child : children) child->flatten(storage);
     }
 

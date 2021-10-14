@@ -14,7 +14,7 @@ set(SFML_BUILD_GRAPHICS true)
 set(WARNING_FLAGS "-Wall -Wextra -Wno-multichar -Wno-unused-result -Wno-deprecated-declarations")
 
 set(CMAKE_EXE_LINKER_FLAGS "-pthread")
-set(CMAKE_CXX_FLAGS   "-O1 -g ${WARNING_FLAGS} -fdeclspec -fsanitize=address -march=native -DGL_SILENCE_DEPRECATION")
+set(CMAKE_CXX_FLAGS   "-O0 -g ${WARNING_FLAGS} -fdeclspec -fsanitize=address -march=native -DGL_SILENCE_DEPRECATION")
 
 add_executable(tracer
         main.cpp

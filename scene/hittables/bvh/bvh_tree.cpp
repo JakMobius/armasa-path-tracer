@@ -33,14 +33,17 @@ void BVHTree::generate_bvh(int node_index, int from, int to, std::vector<Hittabl
 
     int split_index = from + count / 2;
 
-    generate_bvh(node_index * 2, from, split_index, list);
-    generate_bvh(node_index * 2 + 1, split_index, to, list);
+    int left_child_index = node_index * 2 + 1;
+    int right_child_index = node_index * 2 + 2;
+
+    generate_bvh(left_child_index, from, split_index, list);
+    generate_bvh(right_child_index, split_index, to, list);
 
     // In case internal storage was reallocated
     node = get_node(node_index);
 
-    BVHNode* left = get_node(node_index * 2);
-    BVHNode* right = get_node(node_index * 2 + 1);
+    BVHNode* left = get_node(left_child_index);
+    BVHNode* right = get_node(right_child_index);
 
     node->bounding_box = left->bounding_box;
     node->bounding_box.extend(right->bounding_box);

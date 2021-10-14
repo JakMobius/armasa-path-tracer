@@ -36,9 +36,9 @@ double BVHNode::get_effective_split_size(std::vector<Hittable*>* list, int from,
 
 Vec3f BVHNode::get_masked_aabb_vector() {
     return {
-            (flags & BVHNodeFlags::x_positive) ? bounding_box.lower[0] : bounding_box.upper[0],
-            (flags & BVHNodeFlags::y_positive) ? bounding_box.lower[1] : bounding_box.upper[1],
-            (flags & BVHNodeFlags::z_positive) ? bounding_box.lower[2] : bounding_box.upper[2]
+        (flags & BVHNodeFlags::x_positive) ? bounding_box.lower[0] : bounding_box.upper[0],
+        (flags & BVHNodeFlags::y_positive) ? bounding_box.lower[1] : bounding_box.upper[1],
+        (flags & BVHNodeFlags::z_positive) ? bounding_box.lower[2] : bounding_box.upper[2]
     };
 }
 
