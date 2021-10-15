@@ -5,7 +5,7 @@ const uint BVH_NODE_Y_POSITIVE = 1u << 30u;
 const uint BVH_NODE_Z_POSITIVE = 1u << 31u;
 const uint BVH_NODE_FLAG_MASK  = (1u << 28u) - 1u;
 
-void bvh_traverse(int index) {
+int bvh_traverse(int index) {
     int bvh_stack[max_stack_size];
     int bvh_stack_size = 1;
 
@@ -14,6 +14,8 @@ void bvh_traverse(int index) {
 
     vec3 current_aabb_lower;
     vec3 current_aabb_upper;
+
+    int traversed = 0;
 
     while(bvh_stack_size > 0) {
         int next_index = bvh_stack[--bvh_stack_size];
@@ -39,14 +41,15 @@ void bvh_traverse(int index) {
         vec3 new_aabb_lower = min(node_aabb_corner, opposite_aabb_corner);
         vec3 new_aabb_upper = max(node_aabb_corner, opposite_aabb_corner);
 
-        if(!aabb_hit(new_aabb_lower, new_aabb_upper)) {
-            restore_opposite_corner = true;
-            continue;
-        }
-
         if((node_flags & BVH_NODE_IS_LEAF) != 0) {
             restore_opposite_corner = true;
             hittable_hit(int(node_flags & BVH_NODE_FLAG_MASK));
+            traversed++;
+            continue;
+        }
+
+        if(!aabb_hit(new_aabb_lower, new_aabb_upper)) {
+            restore_opposite_corner = true;
             continue;
         }
 
@@ -59,4 +62,6 @@ void bvh_traverse(int index) {
         bvh_stack[bvh_stack_size] = next_index * 2 + 1;
         bvh_stack_size++;
     }
+
+    return traversed;
 }

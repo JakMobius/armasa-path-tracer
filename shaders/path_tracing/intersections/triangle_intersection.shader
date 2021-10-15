@@ -8,7 +8,7 @@ void hittable_triangle_hit(int index, ivec4 data) {
     vec3 h = cross(ray_direction, edge2);
     float a = dot(edge1, h);
 
-    if(a > -epsilon && a < epsilon) return;
+//    if(a > -epsilon && a < epsilon) return;
 
     vec3 point_a = uintBitsToFloat(texelFetch(u_index_buffer, index + 1).xyz);
     vec3 s = (ray_source - point_a) / a;

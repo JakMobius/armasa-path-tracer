@@ -32,7 +32,7 @@ public:
         drawer->get_post_processing_program()->set_brightness(1.0);
         drawer->get_post_processing_program()->set_gamma(1);
         drawer->set_static_frame_substeps(200);
-        drawer->set_dynamic_frame_substeps(16);
+        drawer->set_dynamic_frame_substeps(2);
         drawer->set_max_reflections(30);
 
         frames_logging = 1;
@@ -56,7 +56,7 @@ public:
 
         build_rect(scene->get_root_hittable(), m_light, {0, 0, box_size / 2 - FLOAT_EPS}, {lamp_size, lamp_size, 0}, {lamp_size, -lamp_size, 0});
 
-        build_model(scene->get_root_hittable(), "resources/models/tank.obj",
+        build_model(scene->get_root_hittable(), "resources/models/tank_optimized.obj",
                     Matrix4f::scale_matrix(0.1, 0.1, 0.1) *
                     Matrix4f::rotation_x_matrix(M_PI / 2) *
                     Matrix4f::rotation_z_matrix(-0.9) *

@@ -1,5 +1,6 @@
 
 bool aabb_hit(vec3 aabb_lower, vec3 aabb_upper) {
+    vec3 inv_ray_direction = 1 / ray_direction;
     vec3 t0v = (aabb_lower - ray_source) * inv_ray_direction;
     vec3 t1v = (aabb_upper - ray_source) * inv_ray_direction;
 

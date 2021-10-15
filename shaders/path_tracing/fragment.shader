@@ -53,19 +53,16 @@ void trace_rays() {
 			// Didn't hit anything
 //			temp_color = ray_direction;
 			temp_color *= u_background;
-//			temp_color = vec3(float(memory_reads) / 10000, 0, 0);
 			return;
 		}
 
 		ray_source += ray_direction * hit_record.dist;
 		if(material_reflect(hit_record.material)) {
-			// Hit a light source
-//			temp_color = vec3(float(memory_reads) / 10000, 0, 0);
-//			 break; // uncomment to trace pixel complexity
-			 return; // uncomment to generate real images
+//			Hit a light source
+//			break; // uncomment to trace pixel complexity
+			return; // uncomment to generate real images
 		}
 		ray_source += ray_direction * epsilon;
-
 	} while(++reflections < u_max_reflections);
 
 	if(u_max_reflections < 0) {
@@ -73,7 +70,6 @@ void trace_rays() {
 		float color = 1 / hit_record.dist;
 		temp_color = vec3(color, color, color);
 	} else {
-
 		// Reflection limit exceeded
 		temp_color = vec3(0, 0, 0);
 //		temp_color = ray_direction;

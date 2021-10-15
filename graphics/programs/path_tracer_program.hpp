@@ -28,7 +28,7 @@ class TracerProgram: public BoundedProgram {
     Camera* camera;
     std::mt19937 random;
 
-    int random_buffer_length = 1024;
+    int random_buffer_length = 4096;
     int samples = 1;
     int max_reflections = 4;
     int screen_width;

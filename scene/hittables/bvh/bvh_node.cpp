@@ -44,9 +44,9 @@ Vec3f BVHNode::get_masked_aabb_vector() {
 
 Vec3f BVHNode::get_opposite_masked_aabb_vector() {
     return {
-            (flags & BVHNodeFlags::x_positive) ? bounding_box.upper[0] : bounding_box.lower[0],
-            (flags & BVHNodeFlags::y_positive) ? bounding_box.upper[1] : bounding_box.lower[1],
-            (flags & BVHNodeFlags::z_positive) ? bounding_box.upper[2] : bounding_box.lower[2]
+        (flags & BVHNodeFlags::x_positive) ? bounding_box.upper[0] : bounding_box.lower[0],
+        (flags & BVHNodeFlags::y_positive) ? bounding_box.upper[1] : bounding_box.lower[1],
+        (flags & BVHNodeFlags::z_positive) ? bounding_box.upper[2] : bounding_box.lower[2]
     };
 }
 
