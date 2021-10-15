@@ -1,5 +1,8 @@
 precision highp float;
 
+int memory_reads = 0;
+#define texelFetch(a, b) (memory_reads++, texelFetch(a, b))
+
 #include "./structures/hit_record.shader"
 #include "../utils/constants.shader"
 
@@ -34,8 +37,6 @@ int rand_index;
 
 vec3 temp_color;
 
-int memory_reads = 0;
-
 #include "../utils/random.shader"
 #include "./intersections/intersections.shader"
 #include "./materials/materials.shader"
@@ -46,20 +47,20 @@ void trace_rays() {
 
 	do {
 		hit_record.dist = infinity;
-		int traversed = bvh_traverse(u_entry_index);
+		bvh_traverse(u_entry_index);
 
 		if(isinf(hit_record.dist)) {
 			// Didn't hit anything
 //			temp_color = ray_direction;
 			temp_color *= u_background;
-//			temp_color = vec3(float(traversed) / 10, 0, 0);
+//			temp_color = vec3(float(memory_reads) / 10000, 0, 0);
 			return;
 		}
 
 		ray_source += ray_direction * hit_record.dist;
 		if(material_reflect(hit_record.material)) {
 			// Hit a light source
-//			temp_color = vec3(float(traversed) / 10, 0, 0);
+//			temp_color = vec3(float(memory_reads) / 10000, 0, 0);
 //			 break; // uncomment to trace pixel complexity
 			 return; // uncomment to generate real images
 		}

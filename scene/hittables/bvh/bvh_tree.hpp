@@ -14,7 +14,7 @@ public:
     explicit BVHTree(Hittable* hittable): nodes(), leaves() {
         hittable->flatten(&leaves);
         generate_bvh(0, 0, leaves.size(), &leaves);
-        set_index_buffer_stride(stride * 4 + 4);
+        set_index_buffer_stride(stride * 8);
     }
 
     void register_hittables(SceneRenderer* renderer) override {
@@ -26,8 +26,6 @@ public:
     }
 
     virtual void render(SceneRenderer* renderer, BufferChunk* chunk) override {
-
-        chunk->write_vector(nodes[0].bounding_box.lower, true);
         for(int i = 0; i < stride; i++) {
             BVHNode* node = &nodes[i];
 
@@ -39,8 +37,10 @@ public:
             chunk->write_index((int) flags);
 
             Vec3f aabb_boundary = node->get_masked_aabb_vector();
+            Vec3f aabb_opposite_boundary = node->get_opposite_masked_aabb_vector();
 
             chunk->write_vector(aabb_boundary, false);
+            chunk->write_vector(aabb_opposite_boundary, true);
         }
     }
 

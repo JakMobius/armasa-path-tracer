@@ -29,4 +29,5 @@ struct BVHNode {
     AABB bounding_box {};
 
     Vec3f get_masked_aabb_vector();
+    Vec3f get_opposite_masked_aabb_vector();
 };
