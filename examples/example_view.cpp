@@ -10,7 +10,7 @@ ExampleView::ExampleView() {
 
 }
 
-void ExampleView::create_window(int p_width, int p_height, int p_scale) {
+void ExampleView::create_window(int p_width, int p_height, float p_scale) {
     width = p_width;
     height = p_height;
     scale = p_scale;
@@ -21,9 +21,8 @@ void ExampleView::create_window(int p_width, int p_height, int p_scale) {
 
     window = new sf::RenderWindow(sf::VideoMode(width * scale, height * scale, 32), "Tracer",
                                   sf::Style::Titlebar | sf::Style::Close, settings);
-
-    window->setVerticalSyncEnabled(true);
     window->setFramerateLimit(60);
+    window->setVerticalSyncEnabled(true);
     window->setActive(true);
 }
 
@@ -73,6 +72,12 @@ void ExampleView::loop() {
     }
 }
 
+void ExampleView::set_dynamic_mode_enabled(bool p_is_dynamic_mode) {
+    if(p_is_dynamic_mode == drawer->get_dynamic_mode()) return;
+
+    drawer->set_dynamic_mode(p_is_dynamic_mode);
+}
+
 void ExampleView::tick() {
 
     controller->tick();
@@ -82,16 +87,17 @@ void ExampleView::tick() {
         std::cout << "Screenshot queried\n";
     }
 
-    if(switch_to_dynamic_mode) drawer->set_dynamic_mode(camera->is_moved());
+    if(switch_to_dynamic_mode) set_dynamic_mode_enabled(camera->is_moved());
     else if(camera->is_moved()) drawer->reset();
 
     timer.begin_frame();
     drawer->draw_chunk();
 
-    glViewport(0, 0, width * scale, height * scale);
-    drawer->present();
-
-    window->display();
+//    if(drawer->get_frame_substep() == 0) {
+        glViewport(0, 0, width * scale, height * scale);
+        drawer->present();
+        window->display();
+//    }
 
     timer.end_frame();
 

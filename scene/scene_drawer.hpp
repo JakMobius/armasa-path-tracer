@@ -46,6 +46,7 @@ class SceneDrawer {
     int frame_substeps;
     int frame_substep = 0;
     bool is_dynamic = false;
+    bool needs_render = true;
 
 public:
 
@@ -61,7 +62,10 @@ public:
     };
 
     void draw_chunk() {
-        if(frames == 1) renderer.render(&scene_buffer, scene);
+        if(needs_render) {
+            renderer.render(&scene_buffer, scene);
+            needs_render = false;
+        }
         float render_height = 2 / (float)(frame_substeps);
         float y_from = render_height * (float)frame_substep - 1;
         float y_to = y_from + render_height;
@@ -121,6 +125,8 @@ public:
     void take_screenshot() {
         query_screenshot = true;
     }
+
+    bool get_dynamic_mode() const { return is_dynamic; }
 
     void set_dynamic_mode(bool p_is_dynamic) {
         if(p_is_dynamic && !is_dynamic) {

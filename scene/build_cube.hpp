@@ -18,5 +18,5 @@ enum class CubeEdges : int {
 inline CubeEdges operator|(CubeEdges a, CubeEdges b) { return static_cast<CubeEdges>(static_cast<int>(a) | static_cast<int>(b)); }
 inline CubeEdges operator&(CubeEdges a, CubeEdges b) { return static_cast<CubeEdges>(static_cast<int>(a) & static_cast<int>(b)); }
 
-void build_cube(HittableList* container, const Matrix4f& transform, Material* material, int bitmap = ~0);
+void build_cube(HittableList* container, const Matrix4f& transform, Material* material, CubeEdges bitmap = (CubeEdges)~0);
 void build_cube(HittableList* container, const Matrix4f& transform, Material* materials[6]);

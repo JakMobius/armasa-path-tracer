@@ -7,12 +7,12 @@
 void build_cube(HittableList* container, const Matrix4f& transform, Material* material, CubeEdges bitmap) {
 
     Material* array[6] = {
-        (bitmap & CubeEdges::x_pos) == CubeEdges::none ? material : nullptr,
-        (bitmap & CubeEdges::x_neg) == CubeEdges::none ? material : nullptr,
-        (bitmap & CubeEdges::y_pos) == CubeEdges::none ? material : nullptr,
-        (bitmap & CubeEdges::y_neg) == CubeEdges::none ? material : nullptr,
-        (bitmap & CubeEdges::z_pos) == CubeEdges::none ? material : nullptr,
-        (bitmap & CubeEdges::z_neg) == CubeEdges::none ? material : nullptr,
+        (bitmap & CubeEdges::x_pos) == CubeEdges::none ? nullptr : material,
+        (bitmap & CubeEdges::x_neg) == CubeEdges::none ? nullptr : material,
+        (bitmap & CubeEdges::y_pos) == CubeEdges::none ? nullptr : material,
+        (bitmap & CubeEdges::y_neg) == CubeEdges::none ? nullptr : material,
+        (bitmap & CubeEdges::z_pos) == CubeEdges::none ? nullptr : material,
+        (bitmap & CubeEdges::z_neg) == CubeEdges::none ? nullptr : material,
     };
 
     build_cube(container, transform, array);

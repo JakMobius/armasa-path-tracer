@@ -37,6 +37,8 @@ you're editing before running this program.
 
 ![Glass sphere](./showcase/glass-sphere.png)
 
-- 400 randomized spheres
+- A "Stanford Dragon"
 
-![A lot of spheres](./showcase/a-lot-of-spheres.png)
+![Stanford dragon](./showcase/stanford-dragon.png)
+
+See `/showcase` directory for more high-resolution examples
