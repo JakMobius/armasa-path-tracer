@@ -15,7 +15,7 @@ public:
     TankExampleView(): ExampleView() {}
 
     void init_window() override {
-        create_window(1920, 1080, 1);
+        create_window(3072, 1920, 0.5);
     }
 
     void init_camera() override {
@@ -67,11 +67,11 @@ public:
         scene->get_root_hittable()->add_children(new HittableSphere({0, 0, -5.5}, 1, m_light));
         scene->get_root_hittable()->add_children(new HittableSphere({4, 3, -3}, 1.6, m_neon_orange));
         scene->get_root_hittable()->add_children(new HittableSphere({3, -3, 1}, 0.9, m_neon_blue));
-        scene->get_root_hittable()->add_children(new HittableSphere({-5, -5, -5}, 0.9, m_neon_green));
+        scene->get_root_hittable()->add_children(new HittableSphere({-4.5, -4.5, -5}, 0.9, m_neon_green));
 
         scene->get_root_hittable()->add_children(new HittableSphere({4, 3, -3}, 1.7, m_white_glass));
         scene->get_root_hittable()->add_children(new HittableSphere({3, -3, 1}, 1, m_white_glass));
-        scene->get_root_hittable()->add_children(new HittableSphere({-5, -5, -5}, 1, m_white_glass));
+        scene->get_root_hittable()->add_children(new HittableSphere({-4.5, -4.5, -5}, 1, m_white_glass));
 
         build_cube(scene->get_root_hittable(), Matrix4f::scale_matrix(box_size, box_size, box_size), (Material*[6]){
                 m_white, nullptr,

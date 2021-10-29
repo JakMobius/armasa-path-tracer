@@ -29,15 +29,15 @@ you're editing before running this program.
 
 ## Examples:
 
-- Full-HD 9.500 triangle tank mesh render
+- A crystal tank (9к polygons) 
 
-![High-resolution glass tank](./showcase/tank.png)
+![High-resolution glass tank](./showcase/tank-v3.png)
 
 - A glass sphere in a cornell box
 
 ![Glass sphere](./showcase/glass-sphere.png)
 
-- A "Stanford Dragon"
+- A "Stanford Dragon" (200k polygons)
 
 ![Stanford dragon](./showcase/stanford-dragon.png)
 

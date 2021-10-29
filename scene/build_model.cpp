@@ -11,9 +11,13 @@ bool build_model(HittableList* container, const char* path, const Matrix4f& tran
     std::vector<tinyobj::shape_t> shapes;
     std::string err;
 
+    std::cout << "Loading .obj file: " << path << "\n";
+
     if(!tinyobj::LoadObj(&attrib, &shapes, nullptr, &err, path, nullptr)) {
         return false;
     }
+
+    std::cout << "Vertex count: " << attrib.vertices.size() << "\n";
 
     for(auto& shape : shapes) {
         for(int i = 0; i < (int)shape.mesh.indices.size(); i += 3) {
@@ -47,6 +51,8 @@ bool build_model(HittableList* container, const char* path, const Matrix4f& tran
             container->add_children(triangle);
         }
     }
+
+    std::cout << "Created scene\n";
 
     return true;
 }

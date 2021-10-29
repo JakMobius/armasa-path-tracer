@@ -12,8 +12,8 @@ int main(){
 //    RandomSpheresExampleView view;
 //     CornellBoxSphereExampleView view;
     // CornellBoxExampleView view;
-//     TankExampleView view;
-    PlaygroundView view;
+     TankExampleView view;
+//    PlaygroundView view;
 
     view.init();
     view.loop();

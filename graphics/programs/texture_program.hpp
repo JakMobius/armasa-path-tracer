@@ -36,6 +36,10 @@ public:
 
     void set_texture(GLTexture* p_input_texture) { texture = p_input_texture; }
 
+    void load_image(const char* path, int frames) {
+
+    }
+
     void take_screenshot(int seed, int frames) {
 
         int width = 0;
