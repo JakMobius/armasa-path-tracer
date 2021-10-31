@@ -52,7 +52,7 @@ void trace_rays() {
 		if(isinf(hit_record.dist)) {
 			// Didn't hit anything
 //			temp_color = ray_direction;
-			temp_color *= u_background;
+			temp_color *= vec3(0, 0, 0);
 			return;
 		}
 

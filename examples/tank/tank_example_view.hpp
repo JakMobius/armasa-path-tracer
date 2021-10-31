@@ -15,7 +15,8 @@ public:
     TankExampleView(): ExampleView() {}
 
     void init_window() override {
-        create_window(3072, 1920, 0.5);
+//        create_window(3072, 1920, 0.5);
+        create_window(1920, 1080, 1);
     }
 
     void init_camera() override {

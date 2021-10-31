@@ -11,7 +11,7 @@ int main(){
 
 //    RandomSpheresExampleView view;
 //     CornellBoxSphereExampleView view;
-    // CornellBoxExampleView view;
+//     CornellBoxExampleView view;
      TankExampleView view;
 //    PlaygroundView view;
 
