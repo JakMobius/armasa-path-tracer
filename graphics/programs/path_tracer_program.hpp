@@ -34,7 +34,7 @@ class TracerProgram: public BoundedProgram {
     int screen_width;
     int screen_height;
 
-    Vec3f background_color {0, 0, 0};
+    Vec3f background_color {0.1, 0.1, 0.1 };
 
 public:
     TracerProgram(int width, int height);

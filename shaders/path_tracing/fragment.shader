@@ -1,7 +1,7 @@
 precision highp float;
 
-int memory_reads = 0;
-#define texelFetch(a, b) (memory_reads++, texelFetch(a, b))
+//int memory_reads = 0;
+//#define texelFetch(a, b) (memory_reads++, texelFetch(a, b))
 
 #include "./structures/hit_record.shader"
 #include "../utils/constants.shader"
@@ -25,7 +25,7 @@ uniform uint u_seed;
 
 out vec3 color;
 
-const int max_stack_size = 20;
+const int max_stack_size = 24;
 
 HitRecord hit_record;
 
@@ -41,18 +41,19 @@ vec3 temp_color;
 #include "./intersections/intersections.shader"
 #include "./materials/materials.shader"
 
+
 void trace_rays() {
 	temp_color = vec3(1, 1, 1);
 	int reflections = 0;
+	vec3 background = u_background;
 
 	do {
 		hit_record.dist = infinity;
-		bvh_traverse(u_entry_index);
+		if(bvh_traverse(u_entry_index) == -1) return;
 
 		if(isinf(hit_record.dist)) {
 			// Didn't hit anything
-//			temp_color = ray_direction;
-			temp_color *= vec3(0, 0, 0);
+			temp_color *= background;
 			return;
 		}
 

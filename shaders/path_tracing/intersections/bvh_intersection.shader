@@ -17,7 +17,7 @@ int bvh_traverse(int index) {
 
     int traversed = 0;
 
-    while(bvh_stack_size > 0) {
+    while(bvh_stack_size > 0 && bvh_stack_size <= max_stack_size) {
         int next_index = bvh_stack[--bvh_stack_size];
         int memory_index = index + next_index * 2;
 
@@ -63,5 +63,6 @@ int bvh_traverse(int index) {
         bvh_stack_size++;
     }
 
+    if(bvh_stack_size > max_stack_size) return -1;
     return traversed;
 }
